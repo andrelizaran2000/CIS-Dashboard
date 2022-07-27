@@ -4,14 +4,12 @@ import { blueGrey, green, orange } from '@mui/material/colors';
 
 // Components
 import Eventos from '../components/screens/home/Eventos';
-import Miembros from '../components/screens/home/Miembros';
 import Subeventos from '../components/screens/home/Subeventos';
 import Expositores from '../components/screens/home/Expositores';
 import ColorContainer from '../components/containers/ColorContainer';
 
 // Hooks
 import useSelectors from '../hooks/useSelectors';
-import useBindActions from '../hooks/useBindActions';
 
 export default function Home() {
 

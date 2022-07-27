@@ -81,9 +81,6 @@ export default function ColorContainer ({ bgColor, children, window }:Props) {
       case 2:
         section = 'subeventos';
         break;
-      case 3:
-        section = 'miembros';
-        break;
     }
     isEditMode && toggleEditMode();
     toggleHomeSection(section as PossibleHomeSections)

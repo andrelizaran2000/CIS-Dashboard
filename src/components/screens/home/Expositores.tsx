@@ -14,9 +14,6 @@ import {
   Typography 
 } from '@mui/material';
 
-// Hooks
-import useForm from '../../../hooks/useForm';
-
 // Types
 import { ExpositorBodyWithId } from '../../../types/expositor';
 
@@ -37,6 +34,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import ModeEditIcon from '@mui/icons-material/ModeEdit';
 
 // Hooks
+import useForm from '../../../hooks/useForm';
 import useSelectors from '../../../hooks/useSelectors';
 import useBindActions from '../../../hooks/useBindActions';
 
@@ -54,9 +52,11 @@ export default function Expositores () {
 
   const { formValues, handleSwitch, handleFormValues, handleImageSelector, setFormValues } = useForm(initialStateBlank);
   const expositorFormValues = formValues as ExpositorBodyWithId;
-  const { ui } = useSelectors();
+  const { ui, register } = useSelectors();
+  const { expositores } = register;
   const { isEditMode } = ui;
-  const { uiBindedActions } = useBindActions();
+  const { uiBindedActions, registerBindedActions } = useBindActions();
+  const { setExpositores } = registerBindedActions;
   const { toggleEditMode, showSnackMessage } = uiBindedActions;
 
   function validateForm () {
@@ -71,6 +71,10 @@ export default function Expositores () {
       if (!validateForm()) return;
       const { id, ...expositorRest } = expositorFormValues;
       await registerExpositor(expositorRest);
+      const newExpositores = [ ...expositores, expositorFormValues];
+      setExpositores(newExpositores);
+      showSnackMessage('Nuevo ponente registrado');
+      setFormValues(initialStateBlank);
     } catch (error:any) {
       console.log(error.response);
     }
@@ -80,6 +84,13 @@ export default function Expositores () {
     try {
       if (!validateForm()) return;
       await editExpositor(expositorFormValues);
+      const newExpositores = expositores.map(({ id, ...restExpositor }) => {
+        if (id === expositorFormValues.id) return expositorFormValues;
+        return { id, ...restExpositor };
+      });
+      setExpositores(newExpositores);
+      showSnackMessage('Ponente editado');
+      setFormValues(initialStateBlank);
     } catch (error:any) {
       console.log(error.response);
     }

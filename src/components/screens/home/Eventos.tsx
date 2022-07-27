@@ -21,7 +21,7 @@ import PaperFormContainer from '../../forms/PaperFormContainer';
 import { allWidth } from '../../containers/ColorContainer';
 
 // Types
-import { EventoBody, EventoBodyWithId } from '../../../types/eventos';
+import { EventoBodyWithId } from '../../../types/eventos';
 
 // Hooks
 import useForm from '../../../hooks/useForm';
@@ -36,6 +36,9 @@ import CustomImageSelector from '../../forms/CustomImageSelector';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ModeEditIcon from '@mui/icons-material/ModeEdit';
 
+// Api
+import { editEventoApi, registerEventoApi } from '../../../api/eventos';
+
 const initialStateBlank:EventoBodyWithId = {
   id:0,
   title:'',
@@ -48,14 +51,16 @@ const initialStateBlank:EventoBodyWithId = {
 export default function Eventos() {
 
   const { formValues, handleImageSelector, handleFormValues, setFormValues } = useForm(initialStateBlank);
-  const eventosFormValues = formValues as EventoBody;
-  const { uiBindedActions } = useBindActions();
+  const eventoFormValues = formValues as EventoBodyWithId;
+  const { uiBindedActions, registerBindedActions } = useBindActions();
+  const { setEventos } = registerBindedActions;
   const { toggleEditMode, showSnackMessage } = uiBindedActions;
-  const { ui } = useSelectors();
+  const { ui, register } = useSelectors();
   const { isEditMode } = ui;
+  const { eventos } = register;
 
   function validateForm () {
-    const { description, endDate, flyer, initDate, title } = eventosFormValues;
+    const { description, endDate, flyer, initDate, title } = eventoFormValues;
     if (description && endDate && flyer && initDate && title) return true;
     showSnackMessage('No has completado toda la información del formulario');
     return false;
@@ -63,10 +68,28 @@ export default function Eventos() {
 
   async function onSubmitRegister () {
     if (!validateForm()) return;
+    const { id, ...eventoRest } = eventoFormValues;
+    await registerEventoApi(eventoRest);
+    const newEventos = [eventoFormValues, ...eventos];
+    setEventos(newEventos);
+    showSnackMessage('Nuevo evento registrado');
+    setFormValues(initialStateBlank);
   }
 
   async function onSubmitEdit () {
-    if (!validateForm()) return;
+    try {
+      if (!validateForm()) return;
+      await editEventoApi(eventoFormValues);
+      const newEventos = eventos.map(({ id, ...restEvent }) => {
+        if (id === eventoFormValues.id) return eventoFormValues;
+        return { id, ...restEvent };
+      });
+      setEventos(newEventos);
+      showSnackMessage('Evento editado');
+      setFormValues(initialStateBlank);
+    } catch (error:any) {
+      console.log(error.response);
+    }
   }
 
   function cleanForm () {
@@ -87,7 +110,7 @@ export default function Eventos() {
             label='Título de evento'
             type='text'
             autoComplete='off'
-            value={eventosFormValues.title}
+            value={eventoFormValues.title}
             onChange={handleFormValues}
             name='title'
           />
@@ -95,7 +118,7 @@ export default function Eventos() {
             label='Descripción del subevento'
             type='text'
             autoComplete='off'
-            value={eventosFormValues.description}
+            value={eventoFormValues.description}
             onChange={handleFormValues}
             name='description'
           />
@@ -103,7 +126,7 @@ export default function Eventos() {
             <Typography variant='subtitle2' mb={1}>Fecha de inicio</Typography>
             <TextField
               type='date'
-              value={eventosFormValues.initDate}
+              value={eventoFormValues.initDate}
               onChange={handleFormValues}
               name='initDate'
             />
@@ -112,7 +135,7 @@ export default function Eventos() {
             <Typography variant='subtitle2' mb={1}>Fecha de cierre</Typography>
             <TextField
               type='date'
-              value={eventosFormValues.initDate}
+              value={eventoFormValues.initDate}
               onChange={handleFormValues}
               name='endDate'
             />
@@ -121,7 +144,7 @@ export default function Eventos() {
             label='Flyer de evento' 
             inputName='flyer' 
             handleImageSelector={handleImageSelector}
-            value={eventosFormValues.flyer}
+            value={eventoFormValues.flyer}
           />
         </PaperFormContainer>
       </Grid>

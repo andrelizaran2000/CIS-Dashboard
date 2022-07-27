@@ -17,7 +17,7 @@ export type PossibleUiActions =
   ToggleHomeSection |
   ToggleEditMode;
 
-export type PossibleHomeSections = 'expositores' | 'eventos' | 'subeventos' | 'miembros';
+export type PossibleHomeSections = 'expositores' | 'eventos' | 'subeventos';
 
 export type ShowSnackMessage = {
   type:UiActions.SHOW_SNACK_MESSAGE,

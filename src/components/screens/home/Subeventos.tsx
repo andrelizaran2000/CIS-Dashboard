@@ -34,6 +34,7 @@ import { SubeventoBody, SubeventoBodyWithId } from '../../../types/subeventos';
 // Icons
 import DeleteIcon from '@mui/icons-material/Delete';
 import ModeEditIcon from '@mui/icons-material/ModeEdit';
+import { editSubeventoApi, registerSubeventoApi } from '../../../api/subevento';
 
 const initialStateBlank:SubeventoBody = {
   title:'',
@@ -46,25 +47,45 @@ const initialStateBlank:SubeventoBody = {
 export default function Subeventos() {
 
   const { formValues, handleFormValues, handleImageSelector, setFormValues } = useForm(initialStateBlank);
-  const subeventosFormValues = formValues as SubeventoBody;
-  const { uiBindedActions } = useBindActions();
+  const subeventoFormValues = formValues as SubeventoBodyWithId;
+  const { uiBindedActions, registerBindedActions } = useBindActions();
   const { toggleEditMode, showSnackMessage } = uiBindedActions;
-  const { ui } = useSelectors();
+  const { ui, register } = useSelectors();
+  const { subeventos } = register;
   const { isEditMode } = ui;
+  const { setSubeventos } = registerBindedActions;
 
   function validateForm () {
-    const { title, description, initDate, endDate, flyer } = subeventosFormValues;
+    const { title, description, initDate, endDate, flyer } = subeventoFormValues;
     if (title && description && initDate && endDate && flyer) return true;
     showSnackMessage('No has completado toda la información del formulario');
     return false;
   }
 
-  async function onSubmitEdit () {
-    if (!validateForm()) return;
-  }
-
   async function onSubmitRegister () {
     if (!validateForm()) return;
+    const { id, ...subeventRest } = subeventoFormValues;
+    await registerSubeventoApi(subeventRest);
+    const newSubeventos = [ subeventoFormValues, ...subeventos ];
+    setSubeventos(newSubeventos);
+    showSnackMessage('Nuevo evento registrado');
+    setFormValues(initialStateBlank);
+  }
+
+  async function onSubmitEdit () {
+    try {
+      if (!validateForm()) return;
+      await editSubeventoApi(subeventoFormValues);
+      const newEventos = subeventos.map(({ id, ...restSubevent }) => {
+        if (id === subeventoFormValues.id) return subeventoFormValues;
+        return { id, ...restSubevent };
+      });
+      setSubeventos(newEventos);
+      showSnackMessage('Subevento editado');
+      setFormValues(initialStateBlank);
+    } catch (error:any) {
+      console.log(error.response);
+    }
   }
 
   function cleanForm () {
@@ -85,7 +106,7 @@ export default function Subeventos() {
             label='Título de subevento'
             type='text'
             autoComplete='off'
-            value={subeventosFormValues.title}
+            value={subeventoFormValues.title}
             onChange={handleFormValues}
             name='title'
           />
@@ -93,7 +114,7 @@ export default function Subeventos() {
             label='Descripción del subevento'
             type='text'
             autoComplete='off'
-            value={subeventosFormValues.description}
+            value={subeventoFormValues.description}
             onChange={handleFormValues}
             name='description'
           />
@@ -101,7 +122,7 @@ export default function Subeventos() {
             <Typography variant='subtitle2' mb={1}>Fecha de inicio</Typography>
             <TextField
               type='date'
-              value={subeventosFormValues.initDate}
+              value={subeventoFormValues.initDate}
               onChange={handleFormValues}
               name='initDate'
             />
@@ -110,7 +131,7 @@ export default function Subeventos() {
             <Typography variant='subtitle2' mb={1}>Fecha de cierre</Typography>
             <TextField
               type='date'
-              value={subeventosFormValues.initDate}
+              value={subeventoFormValues.initDate}
               onChange={handleFormValues}
               name='endDate'
             />
@@ -119,7 +140,7 @@ export default function Subeventos() {
             label='Flyer de subevento' 
             inputName='flyer' 
             handleImageSelector={handleImageSelector}
-            value={subeventosFormValues.flyer}
+            value={subeventoFormValues.flyer}
           />
         </PaperFormContainer>
       </Grid>
