@@ -1,8 +1,8 @@
 // Modules
 import { Dispatch } from 'react'
-import { EventoBodyWithId } from '../../types/eventos';
 
 // Types
+import { EventoBodyWithId } from '../../types/eventos';
 import { ExpositorBodyWithId } from '../../types/expositor';
 import { SubeventoBodyWithId } from '../../types/subeventos';
 import { PossibleRegisterActions, RegisterActions } from '../types/register';

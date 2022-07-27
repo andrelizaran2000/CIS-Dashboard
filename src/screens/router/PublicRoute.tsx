@@ -3,10 +3,10 @@ import React, { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 
 // Api
-import { validateTokenApi } from '../api/user';
+import { validateTokenApi } from '../../api/user';
 
 // Hooks
-import useBindActions from '../hooks/useBindActions';
+import useBindActions from '../../hooks/useBindActions';
 
 // Screen
 import LoadingScreen from './LoadingScreen';
@@ -23,9 +23,8 @@ export default function PublicRoute ({ children }:any) {
 
   async function validateToken () {
     try {
-      const token = localStorage.getItem('cis-token');
       setLoadingState({ isLoading:true, isAuthorized:false });
-      const { data } = await validateTokenApi(`Bearer ${token}`);
+      const { data } = await validateTokenApi();
       loginUser(data);
       setLoadingState({ isLoading:false, isAuthorized:true });
     } catch (error:any) {
@@ -35,5 +34,6 @@ export default function PublicRoute ({ children }:any) {
 
   if (loadingState.isLoading) return <LoadingScreen/>
   else if (!loadingState.isLoading && loadingState.isAuthorized) return <Navigate to='/'/>
-  else return children;
+  else if (!loadingState.isLoading && !loadingState.isAuthorized) return children;
+  else return <></>
 }

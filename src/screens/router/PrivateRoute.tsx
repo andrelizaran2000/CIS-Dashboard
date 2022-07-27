@@ -1,10 +1,12 @@
 // Modules
-import React, { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 
 // Api
-import { validateTokenApi } from '../api/user';
-import useBindActions from '../hooks/useBindActions';
+import { validateTokenApi } from '../../api/user';
+
+// Hooks
+import useBindActions from '../../hooks/useBindActions';
 
 // Screen
 import LoadingScreen from './LoadingScreen';
@@ -21,9 +23,8 @@ export default function PrivateRoute ({ children }:any) {
 
   async function validateToken () {
     try {
-      const token = localStorage.getItem('cis-token');
       setLoadingState({ isLoading:true, isAuthorized:false });
-      const { data } = await validateTokenApi(`Bearer ${token}`);
+      const { data } = await validateTokenApi();
       loginUser(data);
       setLoadingState({ isLoading:false, isAuthorized:true });
     } catch (error:any) {
@@ -33,5 +34,6 @@ export default function PrivateRoute ({ children }:any) {
 
   if (loadingState.isLoading) return <LoadingScreen/>
   else if (!loadingState.isLoading && loadingState.isAuthorized) return children;
-  else return <Navigate to='/login'/>
+  else if (!loadingState.isLoading && !loadingState.isAuthorized) return <Navigate to='/login'/>
+  else return <></>
 }

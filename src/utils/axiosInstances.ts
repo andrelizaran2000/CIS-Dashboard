@@ -9,11 +9,7 @@ export const axiosInstanceWithAuth = axios.create({ baseURL:URL });
 
 axiosInstanceWithAuth.interceptors.request.use((config) => {
   const token = localStorage.getItem('cis-token') as string;
-  // @ts-ignore
+  if (config.headers === undefined) config.headers = {};
   config.headers.Authorization = `Bearer ${token}`
-  return config
-});
-
-axiosInstanceWithAuth.interceptors.response.use(() => {
-
+  return config;
 });

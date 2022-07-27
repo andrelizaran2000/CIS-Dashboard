@@ -14,6 +14,6 @@ export default function userReducer (state:LoginData = initialState, { payload, 
     case UserActions.LOG_IN_USER: 
       return initialState;
     default:
-      return initialState;
+      return state;
   }
 }

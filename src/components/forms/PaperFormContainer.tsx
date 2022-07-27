@@ -12,9 +12,10 @@ type Props = {
   primaryButtonText:string;
   onSubmit: () => Promise<void>;
   cleanForm: () => void;
+  isLoading:boolean;
 }
 
-export default function PaperFormContainer({ title, children, primaryButtonText, onSubmit, cleanForm }:Props) {
+export default function PaperFormContainer({ title, children, primaryButtonText, onSubmit, cleanForm, isLoading }:Props) {
   const { ui } = useSelectors();
   const { isEditMode } = ui;
   return (
@@ -23,7 +24,7 @@ export default function PaperFormContainer({ title, children, primaryButtonText,
         <Typography variant='h6' mb={1} color={grey[700]}>{title}</Typography>
         {children}
         {isEditMode && <Button variant='contained' type='submit' color='error' onClick={() => cleanForm()}>Limpiar</Button>}
-        <Button variant='contained' type='submit'>{primaryButtonText}</Button>
+        <Button variant='contained' type='submit' disabled={isLoading}>{primaryButtonText}</Button>
       </Stack>
     </Paper>
   )

@@ -14,9 +14,10 @@ type Props = {
   inputName:string;
   handleImageSelector:(inputName:string, value:any) => void;
   value: string;
+  disabled:boolean;
 }
 
-export default function CustomImageSelector ({ label, inputName, handleImageSelector, value }:Props) {
+export default function CustomImageSelector ({ label, inputName, handleImageSelector, value, disabled }:Props) {
 
   const fileInput = useRef();
 
@@ -46,13 +47,13 @@ export default function CustomImageSelector ({ label, inputName, handleImageSele
           && 
           <>
             <img src={value} style={{ width:40, marginRight:12 }}/>
-            <IconButton sx={{ marginRight:2 }} onClick={() => handleRemoveImage()}>
+            <IconButton sx={{ marginRight:2 }} onClick={() => handleRemoveImage()} disabled={disabled}>
               <ClearIcon/>
             </IconButton>
           </>
         }
         {/* @ts-ignore */}
-        <IconButton onClick={()=> fileInput!.current!.click()}>
+        <IconButton onClick={()=> fileInput!.current!.click()} disabled={disabled}>
           <PhotoCameraIcon/>
           {/* @ts-ignore */}
           <input type='file' style={{ display:'none' }} ref={fileInput} onChange={saveImage}/>

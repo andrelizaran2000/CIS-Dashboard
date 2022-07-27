@@ -1,4 +1,5 @@
 // Modules
+import { useEffect, useState } from 'react';
 import { grey } from '@mui/material/colors';
 import { 
   Alert, 
@@ -24,7 +25,7 @@ import PaperContainer from '../../../components/containers/PaperContainer';
 import PaperFormContainer from '../../../components/forms/PaperFormContainer';
 
 // Api
-import { editExpositor, registerExpositor } from '../../../api/expositores';
+import { editExpositor, getExpositoresApi, registerExpositor } from '../../../api/expositores';
 
 // Styles
 import { allWidth } from '../../../components/containers/ColorContainer';
@@ -38,9 +39,21 @@ import useForm from '../../../hooks/useForm';
 import useSelectors from '../../../hooks/useSelectors';
 import useBindActions from '../../../hooks/useBindActions';
 
+const initialState:ExpositorBodyWithId = {
+  id:0,
+  firstName:'Andre',
+  lastName:'Lizarán',
+  description:'Adipisicing ex in ad deserunt cillum nostrud eiusmod.',
+  title:'Frontend Dev',
+  visible:true,
+  profilePhoto:'https://firebasestorage.googleapis.com/v0/b/cis-frontend-81086.appspot.com/o/IMG_1063.JPG?alt=media&token=ad98b7a9-c094-40ac-9b45-77fd2bc5037b',
+  coverPhoto:'https://firebasestorage.googleapis.com/v0/b/cis-frontend-81086.appspot.com/o/materialdesign-1-645x300.jpg?alt=media&token=b6411acf-ce22-4603-beac-c5ae061b862e',
+}
+
 const initialStateBlank:ExpositorBodyWithId = {
   id:0,
-  fullName:'',
+  firstName:'',
+  lastName:'',
   description:'',
   title:'',
   visible:true,
@@ -50,7 +63,7 @@ const initialStateBlank:ExpositorBodyWithId = {
 
 export default function Expositores () {
 
-  const { formValues, handleSwitch, handleFormValues, handleImageSelector, setFormValues } = useForm(initialStateBlank);
+  const { formValues, handleSwitch, handleFormValues, handleImageSelector, setFormValues } = useForm(initialState);
   const expositorFormValues = formValues as ExpositorBodyWithId;
   const { ui, register } = useSelectors();
   const { expositores } = register;
@@ -58,10 +71,25 @@ export default function Expositores () {
   const { uiBindedActions, registerBindedActions } = useBindActions();
   const { setExpositores } = registerBindedActions;
   const { toggleEditMode, showSnackMessage } = uiBindedActions;
+  const [ isLoading, setIsLoading ] = useState(false);
+
+  useEffect(() => {
+    getExpositores()
+  }, []);
+
+  async function getExpositores () {
+    try {
+      const { data } = await getExpositoresApi();
+      const { speakers } = data;
+      setExpositores(speakers);
+    } catch (error:any) {
+      console.log(error)
+    }
+  }
 
   function validateForm () {
-    const { coverPhoto, description, fullName, profilePhoto, title } = expositorFormValues;
-    if (coverPhoto && description && fullName && profilePhoto && title) return true;
+    const { coverPhoto, description, firstName, lastName, profilePhoto, title } = expositorFormValues;
+    if (coverPhoto && description && firstName && lastName && profilePhoto && title) return true;
     showSnackMessage('No has completado toda la información del formulario');
     return false;
   }
@@ -69,20 +97,24 @@ export default function Expositores () {
   async function onSubmitRegister () {
     try {
       if (!validateForm()) return;
+      setIsLoading(true)
       const { id, ...expositorRest } = expositorFormValues;
       await registerExpositor(expositorRest);
       const newExpositores = [ ...expositores, expositorFormValues];
       setExpositores(newExpositores);
       showSnackMessage('Nuevo ponente registrado');
       setFormValues(initialStateBlank);
+      setIsLoading(false)
     } catch (error:any) {
       console.log(error.response);
+      setIsLoading(false);
     }
   }
 
   async function onSubmitEdit () {
     try {
       if (!validateForm()) return;
+      setIsLoading(true)
       await editExpositor(expositorFormValues);
       const newExpositores = expositores.map(({ id, ...restExpositor }) => {
         if (id === expositorFormValues.id) return expositorFormValues;
@@ -91,8 +123,10 @@ export default function Expositores () {
       setExpositores(newExpositores);
       showSnackMessage('Ponente editado');
       setFormValues(initialStateBlank);
+      setIsLoading(false);
     } catch (error:any) {
       console.log(error.response);
+      setIsLoading(false);
     }
   }
 
@@ -109,14 +143,25 @@ export default function Expositores () {
           title={isEditMode ? 'Editar expositor' : 'Registrar expositor'} 
           onSubmit={() => isEditMode ? onSubmitEdit() : onSubmitRegister()}
           cleanForm={cleanForm}
+          isLoading={isLoading}
         >
           <TextField
             label='Nombre de expositor'
             type='text'
             autoComplete='off'
-            value={expositorFormValues.fullName}
+            value={expositorFormValues.firstName}
             onChange={handleFormValues}
-            name='fullName'
+            name='firstName'
+            disabled={isLoading}
+          />
+          <TextField
+            label='Apellido de expositor'
+            type='text'
+            autoComplete='off'
+            value={expositorFormValues.lastName}
+            onChange={handleFormValues}
+            name='lastName'
+            disabled={isLoading}
           />
           <TextField
             label='Descripción de expositor'
@@ -125,6 +170,7 @@ export default function Expositores () {
             value={expositorFormValues.description}
             onChange={handleFormValues}
             name='description'
+            disabled={isLoading}
           />
           <TextField
             label='Título de expositor'
@@ -133,24 +179,28 @@ export default function Expositores () {
             value={expositorFormValues.title}
             onChange={handleFormValues}
             name='title'
+            disabled={isLoading}
           />
           <CustomImageSelector 
             label='Foto de perfil' 
             inputName='profilePhoto' 
             handleImageSelector={handleImageSelector}
             value={expositorFormValues.profilePhoto}
+            disabled={isLoading}
           /> 
           <CustomImageSelector 
             label='Foto de portada' 
             inputName='coverPhoto' 
             handleImageSelector={handleImageSelector}
             value={expositorFormValues.coverPhoto}
+            disabled={isLoading}
           />
           <CustomSwitch
             handleSwitch={handleSwitch}
             inputName='visible'
             label='Expositor visible'
             value={expositorFormValues.visible}
+            disabled={isLoading}
           />
         </PaperFormContainer>
       </Grid>
@@ -179,13 +229,13 @@ function ExpositoresList ({ setFormValues }:any) {
       <PaperContainer title='Expositores guardados'>
         <Grid container spacing={2}>     
           {expositores.map((expositor, index) => {
-            const { title, fullName, description, coverPhoto, profilePhoto } = expositor;
+            const { title, firstName, lastName, description, coverPhoto, profilePhoto } = expositor;
             return (
               <Grid item xs={12} md={6} lg={12} xl={6} key={index}>
                 <Card>
                   <CardHeader
                     avatar={<Avatar src={profilePhoto}/>}
-                    title={fullName}
+                    title={`${firstName} ${lastName}`}
                     subheader={title}
                   />
                   <CardMedia

@@ -1,5 +1,6 @@
 export type ExpositorBody = {
-  fullName:string;
+  firstName:string;
+  lastName:string;
   description:string;
   title:string;
   visible:true;

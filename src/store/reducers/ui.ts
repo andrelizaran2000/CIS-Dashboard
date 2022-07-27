@@ -26,6 +26,6 @@ export default function uiReducer (state:UiState = initialState, { payload, type
         isEditMode:!state.isEditMode
       }
     default:
-      return initialState;
+      return state;
   }
 }
