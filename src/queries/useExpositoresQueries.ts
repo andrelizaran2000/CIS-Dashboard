@@ -24,7 +24,8 @@ export default function useExpositoresQueries() {
 			},
 			onError: () => {
 				showSnackMessage('Error obteniendo ponente');
-			}
+			},
+			enabled:false
 		});
 	}
 
@@ -62,9 +63,9 @@ export default function useExpositoresQueries() {
 
 	function removeExpositorMutation () {
 		return useMutation(removeExpositorApi, {
-			onSuccess: (_, isSelected) => {
+			onSuccess: (_, idSelected) => {
 				const newExpositores = expositores.filter((expositor) => {
-					if (expositor.id !== isSelected) return expositor;
+					if (expositor.id !== idSelected) return expositor;
 				});
 				setExpositores(newExpositores);
 				showSnackMessage('Ponente eliminado');

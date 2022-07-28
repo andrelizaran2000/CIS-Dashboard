@@ -2,7 +2,7 @@
 import { useMutation, useQuery } from "@tanstack/react-query"
 
 // Api
-import { editEventoApi, getEventosApi, registerEventoApi } from "../api/eventos"
+import { editEventoApi, getEventosApi, registerEventoApi, removeEventoApi } from "../api/eventos"
 
 // Hooks
 import useBindActions from "../hooks/useBindActions";
@@ -24,7 +24,8 @@ export default function useEventosQueries() {
       },
       onError: () => {
         showSnackMessage('Error obteniendo ponente');
-      }
+      },
+      enabled:false
     });
   }
 
@@ -59,11 +60,27 @@ export default function useEventosQueries() {
       }
     })
   }
+
+  function removeEventoMutation () {
+    return useMutation(removeEventoApi, {
+      onSuccess: (_, idSelected) => {
+        const newEventos = eventos.filter((evento) => {
+					if (evento.id !== idSelected) return evento;
+				});
+        setEventos(newEventos);
+				showSnackMessage('Ponente eliminado');
+      },
+      onError: () => {
+        showSnackMessage('Error removiendo evento');
+      } 
+    });
+  }
   
   return {
     getEventosQuery,
     registerEventoMutation,
-    editEventoMutation
+    editEventoMutation,
+    removeEventoMutation
   }
 
 }

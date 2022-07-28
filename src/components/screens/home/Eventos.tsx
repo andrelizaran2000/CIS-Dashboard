@@ -168,18 +168,20 @@ export default function Eventos() {
           />
         </PaperFormContainer>
       </Grid>
-      <EventosList setFormValues={setFormValues} isLoading={isGettingEventos}/>
+      <EventosList setFormValues={setFormValues} isLoading={isGettingEventos} isLoadingAction={isRegisteringEvento || isEditingEvento}/>
     </>
   )
 }
 
-function EventosList ({ setFormValues, isLoading }:any) {
+function EventosList ({ setFormValues, isLoading, isLoadingAction }:any) {
 
   const { register, ui } = useSelectors();
   const { eventos } = register;
   const { isEditMode } = ui;
   const { uiBindedActions } = useBindActions();
   const { toggleEditMode } = uiBindedActions;
+  const { removeEventoMutation } = useEventosQueries();
+  const { mutate, isLoading:isRemovingEvento } = removeEventoMutation();
 
   function editEvento (evento:EventoBodyWithId) {
     setFormValues(evento);
@@ -192,7 +194,7 @@ function EventosList ({ setFormValues, isLoading }:any) {
       <PaperContainer title='Eventos guardados'>
         <Grid container spacing={2}>
           {eventos.map((evento, index) => {
-            const { description, endDate, flyer, initDate, title } = evento;
+            const { description, endDate, flyer, initDate, title, id } = evento;
             return (
               <Grid item xs={12} md={6} lg={12} xl={6} key={index}>
                 <Card>
@@ -210,10 +212,10 @@ function EventosList ({ setFormValues, isLoading }:any) {
                     <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>{description}</Typography>
                   </CardContent>
                   <CardActions disableSpacing sx={{ backgroundColor:grey[100] }}>
-                    <IconButton onClick={() => { editEvento(evento)}}> 
+                    <IconButton onClick={() => { editEvento(evento)}} disabled={isRemovingEvento || isLoadingAction}> 
                       <ModeEditIcon/>
                     </IconButton>
-                    <IconButton>
+                    <IconButton onClick={() => mutate(id)} disabled={isRemovingEvento || isLoadingAction}>
                       <DeleteIcon/>
                     </IconButton>
                   </CardActions>

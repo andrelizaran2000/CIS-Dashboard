@@ -14,6 +14,10 @@ export function registerEventoApi (event:EventoBody) {
 
 export function editEventoApi (event:EventoBodyWithId) {
   const { id, ...restEvent } = event;
-  return axiosInstanceWithAuth.put(`/api-dashboard/events.php?id=:${id}`, restEvent);
+  return axiosInstanceWithAuth.put<null>(`/api-dashboard/events.php?id=:${id}`, restEvent);
+}
+
+export function removeEventoApi (id:number) {
+  return axiosInstanceWithAuth.delete<null>(`/api-dashboard/events.php?id=:${id}`);
 }
 
