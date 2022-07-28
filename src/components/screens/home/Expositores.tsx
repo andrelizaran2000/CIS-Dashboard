@@ -25,7 +25,12 @@ import PaperContainer from '../../../components/containers/PaperContainer';
 import PaperFormContainer from '../../../components/forms/PaperFormContainer';
 
 // Api
-import { editExpositor, getExpositoresApi, registerExpositor } from '../../../api/expositores';
+import { 
+  editExpositorApi, 
+  getExpositoresApi, 
+  registerExpositorApi, 
+  removeExpositorApi 
+} from '../../../api/expositores';
 
 // Styles
 import { allWidth } from '../../../components/containers/ColorContainer';
@@ -99,7 +104,7 @@ export default function Expositores () {
       if (!validateForm()) return;
       setIsLoading(true)
       const { id, ...expositorRest } = expositorFormValues;
-      await registerExpositor(expositorRest);
+      await registerExpositorApi(expositorRest);
       const newExpositores = [ ...expositores, expositorFormValues];
       setExpositores(newExpositores);
       showSnackMessage('Nuevo ponente registrado');
@@ -115,7 +120,7 @@ export default function Expositores () {
     try {
       if (!validateForm()) return;
       setIsLoading(true)
-      await editExpositor(expositorFormValues);
+      await editExpositorApi(expositorFormValues);
       const newExpositores = expositores.map(({ id, ...restExpositor }) => {
         if (id === expositorFormValues.id) return expositorFormValues;
         return { id, ...restExpositor };
@@ -124,6 +129,7 @@ export default function Expositores () {
       showSnackMessage('Ponente editado');
       setFormValues(initialStateBlank);
       setIsLoading(false);
+      toggleEditMode();
     } catch (error:any) {
       console.log(error.response);
       setIsLoading(false);
@@ -216,7 +222,7 @@ function ExpositoresList ({ setFormValues }:any) {
   const { expositores } = register;
   const { isEditMode } = ui;
   const { uiBindedActions } = useBindActions();
-  const { toggleEditMode } = uiBindedActions;
+  const { toggleEditMode, showSnackMessage } = uiBindedActions;
 
   function editExpositor (expositor:ExpositorBodyWithId) {
     setFormValues(expositor);
@@ -224,12 +230,21 @@ function ExpositoresList ({ setFormValues }:any) {
     window.scrollTo({ top:0, behavior:'smooth' });
   }
 
+  async function removeExpositor (id:number) {
+    try {
+      await removeExpositorApi(id);
+      showSnackMessage('Ponente eliminado');
+    } catch (error:any) {
+      console.log(error);
+    }
+  }
+
   return (
     <Grid item xs={12} lg={6} sx={{ display:'flex', flexDirection:'column' }}>
       <PaperContainer title='Expositores guardados'>
         <Grid container spacing={2}>     
           {expositores.map((expositor, index) => {
-            const { title, firstName, lastName, description, coverPhoto, profilePhoto } = expositor;
+            const { title, firstName, lastName, description, coverPhoto, profilePhoto, id } = expositor;
             return (
               <Grid item xs={12} md={6} lg={12} xl={6} key={index}>
                 <Card>
@@ -250,7 +265,7 @@ function ExpositoresList ({ setFormValues }:any) {
                     <IconButton onClick={() => editExpositor(expositor)}> 
                       <ModeEditIcon/>
                     </IconButton>
-                    <IconButton>
+                    <IconButton onClick={() => removeExpositor(id)}>
                       <DeleteIcon/>
                     </IconButton>
                   </CardActions>

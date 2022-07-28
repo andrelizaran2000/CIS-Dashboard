@@ -8,11 +8,15 @@ export function getExpositoresApi () {
   return axiosInstanceWithAuth.get<{speakers:ExpositorBodyWithId[]}>('/api-dashboard/speakers.php');
 }
 
-export function registerExpositor (data:ExpositorBody) {
+export function registerExpositorApi (data:ExpositorBody) {
   return axiosInstanceWithAuth.post<null>('/api-dashboard/speakers.php', data);
 }
 
-export function editExpositor (expositor:ExpositorBodyWithId) {
+export function editExpositorApi (expositor:ExpositorBodyWithId) {
   const { id, ...restExpositor } = expositor;
   return axiosInstanceWithAuth.put<null>(`/api-dashboard/speakers.php?id=${id}`, restExpositor);
+}
+
+export function removeExpositorApi (id:number) {
+  return axiosInstanceWithAuth.delete<null>(`/api-dashboard/speakers.php?id=${id}`);
 }

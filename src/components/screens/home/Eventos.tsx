@@ -1,4 +1,5 @@
 // Modules
+import { useState } from 'react';
 import { grey } from '@mui/material/colors';
 import {
    Alert, 
@@ -13,10 +14,7 @@ import {
   Stack, 
   TextField, 
   Typography } from '@mui/material';
-
-// Components
-import PaperFormContainer from '../../forms/PaperFormContainer';
-
+  
 // Styles
 import { allWidth } from '../../containers/ColorContainer';
 
@@ -29,7 +27,9 @@ import useSelectors from '../../../hooks/useSelectors';
 import useBindActions from '../../../hooks/useBindActions';
 
 // Components
+import CustomSwitch from '../../forms/CustomSwitch';
 import PaperContainer from '../../containers/PaperContainer';
+import PaperFormContainer from '../../forms/PaperFormContainer';
 import CustomImageSelector from '../../forms/CustomImageSelector';
 
 // Icons
@@ -41,16 +41,17 @@ import { editEventoApi, registerEventoApi } from '../../../api/eventos';
 
 const initialStateBlank:EventoBodyWithId = {
   id:0,
-  title:'',
-  description:'',
+  title:'JS & TS',
+  description:'Sit eu veniam occaecat enim culpa voluptate incididunt ea deserunt incididunt labore aliqua occaecat.',
   initDate:'',
   endDate:'',
-  flyer:'',
+  flyer:'https://firebasestorage.googleapis.com/v0/b/cis-frontend-81086.appspot.com/o/1_9XMpTyccrky0eW5Wz6DoWQ.png?alt=media&token=bd82a2bd-4291-40c2-8aca-e614bc27794f',
+  register:true
 }
 
 export default function Eventos() {
 
-  const { formValues, handleImageSelector, handleFormValues, setFormValues } = useForm(initialStateBlank);
+  const { formValues, handleImageSelector, handleFormValues, setFormValues, handleSwitch } = useForm(initialStateBlank);
   const eventoFormValues = formValues as EventoBodyWithId;
   const { uiBindedActions, registerBindedActions } = useBindActions();
   const { setEventos } = registerBindedActions;
@@ -58,6 +59,7 @@ export default function Eventos() {
   const { ui, register } = useSelectors();
   const { isEditMode } = ui;
   const { eventos } = register;
+  const [ isLoading, setIsLoading ] = useState(false);
 
   function validateForm () {
     const { description, endDate, flyer, initDate, title } = eventoFormValues;
@@ -101,6 +103,7 @@ export default function Eventos() {
     <>
       <Grid item xs={12} lg={6} sx={allWidth}>
         <PaperFormContainer 
+          isLoading={isLoading}
           primaryButtonText='Registrar' 
           title='Registrar eventos' 
           onSubmit={() => isEditMode ? onSubmitEdit() : onSubmitRegister()}
@@ -113,6 +116,7 @@ export default function Eventos() {
             value={eventoFormValues.title}
             onChange={handleFormValues}
             name='title'
+            disabled={isLoading}
           />
           <TextField
             label='Descripción del subevento'
@@ -121,6 +125,7 @@ export default function Eventos() {
             value={eventoFormValues.description}
             onChange={handleFormValues}
             name='description'
+            disabled={isLoading}
           />
           <Stack flexDirection='column'>
             <Typography variant='subtitle2' mb={1}>Fecha de inicio</Typography>
@@ -129,15 +134,17 @@ export default function Eventos() {
               value={eventoFormValues.initDate}
               onChange={handleFormValues}
               name='initDate'
+              disabled={isLoading}
             />
           </Stack>
           <Stack flexDirection='column'>
             <Typography variant='subtitle2' mb={1}>Fecha de cierre</Typography>
             <TextField
               type='date'
-              value={eventoFormValues.initDate}
+              value={eventoFormValues.endDate}
               onChange={handleFormValues}
               name='endDate'
+              disabled={isLoading}
             />
           </Stack>
           <CustomImageSelector 
@@ -145,6 +152,14 @@ export default function Eventos() {
             inputName='flyer' 
             handleImageSelector={handleImageSelector}
             value={eventoFormValues.flyer}
+            disabled={isLoading}
+          />
+          <CustomSwitch
+            handleSwitch={handleSwitch}
+            inputName='register'
+            label='Registro disponible'
+            value={eventoFormValues.register}
+            disabled={isLoading}
           />
         </PaperFormContainer>
       </Grid>
