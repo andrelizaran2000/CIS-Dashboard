@@ -23,9 +23,8 @@ export default function PublicRoute ({ children }:any) {
 
   async function validateToken () {
     try {
-      const token = localStorage.getItem('cis-token');
       setLoadingState({ isLoading:true, isAuthorized:false });
-      const { data } = await validateTokenApi(`Bearer ${token}`);
+      const { data } = await validateTokenApi();
       loginUser(data);
       setLoadingState({ isLoading:false, isAuthorized:true });
     } catch (error:any) {

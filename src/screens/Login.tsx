@@ -46,7 +46,7 @@ export default function Login () {
     <Grid container sx={{ height:'100vh' }}>
       <Grid item xs={0}  md={6} lg={8} sx={{ backgroundColor:blue[600] }}/>
       <Grid item xs={12} md={6} lg={4} sx={secondChildStyles}>
-        <PaperFormContainer primaryButtonText='Entrar' title='Iniciar sesión' onSubmit={onSubmit}>
+        <PaperFormContainer primaryButtonText='Entrar' title='Iniciar sesión' onSubmit={onSubmit} isLoading={false} cleanForm={() => {}} >
           <TextField
             type='text'
             label='Nomber de usuario'

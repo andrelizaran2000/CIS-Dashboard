@@ -10,20 +10,12 @@ import ColorContainer from '../components/containers/ColorContainer';
 
 // Hooks
 import useSelectors from '../hooks/useSelectors';
-import useBindActions from '../hooks/useBindActions';
-
-// Api
-import { getEventosApi } from '../api/eventos';
-import { getExpositoresApi } from '../api/expositores';
-import { getSubeventosApi } from '../api/subevento';
 
 export default function Home() {
 
   const { ui } = useSelectors();
   const { homeSection } = ui;
   const [ bgColor, setBgColor ] = useState<string>(blueGrey[400]);
-  const { registerBindedActions } = useBindActions();
-  const { setEventos, setExpositores, setSubeventos } = registerBindedActions;
   
   useEffect(() => {
     switch (homeSection) {

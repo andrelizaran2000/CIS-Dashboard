@@ -103,6 +103,7 @@ export default function Subeventos() {
           title={isEditMode ? 'Editar subevento' : 'Registrar subevento'} 
           onSubmit={() => isEditMode ? onSubmitEdit() : onSubmitRegister()}
           cleanForm={cleanForm}
+          isLoading={true}
         >
           <TextField
             label='Título de subevento'
@@ -143,6 +144,7 @@ export default function Subeventos() {
             inputName='flyer' 
             handleImageSelector={handleImageSelector}
             value={subeventoFormValues.flyer}
+            disabled={true}
           />
         </PaperFormContainer>
       </Grid>
