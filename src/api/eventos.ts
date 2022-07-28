@@ -5,11 +5,11 @@ import { axiosInstanceWithAuth } from '../utils/axiosInstances';
 import { EventoBody, EventoBodyWithId } from '../types/eventos';
 
 export function getEventosApi () {
-  return axiosInstanceWithAuth.get<EventoBodyWithId[]>('/api-dashboard/events.php');
+  return axiosInstanceWithAuth.get<{ events:EventoBodyWithId[] }>('/api-dashboard/events.php');
 }
 
 export function registerEventoApi (event:EventoBody) {
-  return axiosInstanceWithAuth.post<EventoBodyWithId[]>('/api-dashboard/events.php', event);
+  return axiosInstanceWithAuth.post<{ id:number }>('/api-dashboard/events.php', event);
 } 
 
 export function editEventoApi (event:EventoBodyWithId) {

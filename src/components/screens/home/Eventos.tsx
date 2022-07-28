@@ -1,5 +1,5 @@
 // Modules
-import { useState } from 'react';
+import { useEffect } from 'react';
 import { grey } from '@mui/material/colors';
 import {
    Alert, 
@@ -25,6 +25,7 @@ import { EventoBodyWithId } from '../../../types/eventos';
 import useForm from '../../../hooks/useForm';
 import useSelectors from '../../../hooks/useSelectors';
 import useBindActions from '../../../hooks/useBindActions';
+import useEventosQueries from '../../../queries/useEventosQueries';
 
 // Components
 import CustomSwitch from '../../forms/CustomSwitch';
@@ -36,10 +37,7 @@ import CustomImageSelector from '../../forms/CustomImageSelector';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ModeEditIcon from '@mui/icons-material/ModeEdit';
 
-// Api
-import { editEventoApi, registerEventoApi } from '../../../api/eventos';
-
-const initialStateBlank:EventoBodyWithId = {
+const initialState:EventoBodyWithId = {
   id:0,
   title:'JS & TS',
   description:'Sit eu veniam occaecat enim culpa voluptate incididunt ea deserunt incididunt labore aliqua occaecat.',
@@ -49,17 +47,41 @@ const initialStateBlank:EventoBodyWithId = {
   register:true
 }
 
+const initialStateBlank:EventoBodyWithId = {
+  id:0,
+  title:'',
+  description:'',
+  initDate:'',
+  endDate:'',
+  flyer:'',
+  register:true
+}
+
 export default function Eventos() {
 
-  const { formValues, handleImageSelector, handleFormValues, setFormValues, handleSwitch } = useForm(initialStateBlank);
+  const { 
+    formValues, 
+    handleImageSelector, 
+    handleFormValues, 
+    setFormValues, 
+    handleSwitch 
+  } = useForm(initialState);
   const eventoFormValues = formValues as EventoBodyWithId;
-  const { uiBindedActions, registerBindedActions } = useBindActions();
-  const { setEventos } = registerBindedActions;
-  const { toggleEditMode, showSnackMessage } = uiBindedActions;
-  const { ui, register } = useSelectors();
+
+  const { ui } = useSelectors();
   const { isEditMode } = ui;
-  const { eventos } = register;
-  const [ isLoading, setIsLoading ] = useState(false);
+  const { uiBindedActions } = useBindActions();
+  const { toggleEditMode, showSnackMessage } = uiBindedActions;
+
+  // Queries
+  const { getEventosQuery, registerEventoMutation, editEventoMutation } = useEventosQueries();
+  const { refetch:getEventos, isLoading:isGettingEventos } = getEventosQuery();
+  const { mutate:registerEvento, isLoading:isRegisteringEvento } = registerEventoMutation(cleanForm);
+  const { mutate:editEvento, isLoading:isEditingEvento } = editEventoMutation(cleanForm);
+
+  useEffect(() => {
+    getEventos();
+  }, []);
 
   function validateForm () {
     const { description, endDate, flyer, initDate, title } = eventoFormValues;
@@ -68,46 +90,29 @@ export default function Eventos() {
     return false;
   }
 
-  async function onSubmitRegister () {
+  function onSubmit () {
     if (!validateForm()) return;
-    const { id, ...eventoRest } = eventoFormValues;
-    await registerEventoApi(eventoRest);
-    const newEventos = [eventoFormValues, ...eventos];
-    setEventos(newEventos);
-    showSnackMessage('Nuevo evento registrado');
-    setFormValues(initialStateBlank);
-  }
-
-  async function onSubmitEdit () {
-    try {
-      if (!validateForm()) return;
-      await editEventoApi(eventoFormValues);
-      const newEventos = eventos.map(({ id, ...restEvent }) => {
-        if (id === eventoFormValues.id) return eventoFormValues;
-        return { id, ...restEvent };
-      });
-      setEventos(newEventos);
-      showSnackMessage('Evento editado');
-      setFormValues(initialStateBlank);
-    } catch (error:any) {
-      console.log(error.response);
+    if (isEditMode) editEvento(eventoFormValues); 
+    else {
+      const { id, ...restEvento } = eventoFormValues;
+      registerEvento(restEvento); 
     }
   }
 
-  function cleanForm () {
+  function cleanForm (isEditMode:boolean) {
     setFormValues(initialStateBlank);
-    toggleEditMode();
+    isEditMode && toggleEditMode();
   }
 
   return (
     <>
       <Grid item xs={12} lg={6} sx={allWidth}>
         <PaperFormContainer 
-          isLoading={isLoading}
-          primaryButtonText='Registrar' 
-          title='Registrar eventos' 
-          onSubmit={() => isEditMode ? onSubmitEdit() : onSubmitRegister()}
-          cleanForm={cleanForm}
+          isLoading={isRegisteringEvento || isEditingEvento}
+          primaryButtonText={isEditMode ? 'Editar' : 'Registrar'} 
+          title={isEditMode ? 'Editar evento' : 'Registrar eventos' }
+          onSubmit={onSubmit}
+          cleanForm={() => cleanForm(true)}
         >
           <TextField
             label='Título de evento'
@@ -116,7 +121,7 @@ export default function Eventos() {
             value={eventoFormValues.title}
             onChange={handleFormValues}
             name='title'
-            disabled={isLoading}
+            disabled={isRegisteringEvento || isEditingEvento}
           />
           <TextField
             label='Descripción del subevento'
@@ -125,7 +130,7 @@ export default function Eventos() {
             value={eventoFormValues.description}
             onChange={handleFormValues}
             name='description'
-            disabled={isLoading}
+            disabled={isRegisteringEvento || isEditingEvento}
           />
           <Stack flexDirection='column'>
             <Typography variant='subtitle2' mb={1}>Fecha de inicio</Typography>
@@ -134,7 +139,7 @@ export default function Eventos() {
               value={eventoFormValues.initDate}
               onChange={handleFormValues}
               name='initDate'
-              disabled={isLoading}
+              disabled={isRegisteringEvento || isEditingEvento}
             />
           </Stack>
           <Stack flexDirection='column'>
@@ -144,7 +149,7 @@ export default function Eventos() {
               value={eventoFormValues.endDate}
               onChange={handleFormValues}
               name='endDate'
-              disabled={isLoading}
+              disabled={isRegisteringEvento || isEditingEvento}
             />
           </Stack>
           <CustomImageSelector 
@@ -152,23 +157,23 @@ export default function Eventos() {
             inputName='flyer' 
             handleImageSelector={handleImageSelector}
             value={eventoFormValues.flyer}
-            disabled={isLoading}
+            disabled={isRegisteringEvento || isEditingEvento}
           />
           <CustomSwitch
             handleSwitch={handleSwitch}
             inputName='register'
             label='Registro disponible'
             value={eventoFormValues.register}
-            disabled={isLoading}
+            disabled={isRegisteringEvento || isEditingEvento}
           />
         </PaperFormContainer>
       </Grid>
-      <EventosList setFormValues={setFormValues}/>
+      <EventosList setFormValues={setFormValues} isLoading={isGettingEventos}/>
     </>
   )
 }
 
-function EventosList ({ setFormValues }:any) {
+function EventosList ({ setFormValues, isLoading }:any) {
 
   const { register, ui } = useSelectors();
   const { eventos } = register;
@@ -217,7 +222,8 @@ function EventosList ({ setFormValues }:any) {
             )
           })}
         </Grid>
-        {!eventos.length && <Alert severity='warning'>No hay eventos registrados</Alert>}
+        {(!eventos.length && !isLoading) && <Alert severity='warning'>No hay eventos registrados</Alert>}
+        {isLoading && <Alert severity='info'>Cargando eventos</Alert>}
       </PaperContainer>
     </Grid>
   )

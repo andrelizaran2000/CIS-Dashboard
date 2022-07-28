@@ -2,7 +2,7 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 
 // Api
-import { getExpositoresApi, registerExpositorApi, editExpositorApi } from '../api/expositores';
+import { getExpositoresApi, registerExpositorApi, editExpositorApi, removeExpositorApi } from '../api/expositores';
 
 // Hooks
 import useSelectors from '../hooks/useSelectors';
@@ -55,15 +55,31 @@ export default function useExpositoresQueries() {
 				afterSubmit(true);
 			},
 			onError: () => {
-				showSnackMessage('Error registrando ponente');
+				showSnackMessage('Error editando ponente');
 			}
 		})
+	}
+
+	function removeExpositorMutation () {
+		return useMutation(removeExpositorApi, {
+			onSuccess: (_, isSelected) => {
+				const newExpositores = expositores.filter((expositor) => {
+					if (expositor.id !== isSelected) return expositor;
+				});
+				setExpositores(newExpositores);
+				showSnackMessage('Ponente eliminado');
+			},
+			onError: () => {
+				showSnackMessage('Error eliminando ponente');
+			}
+		});
 	}
 
 	return {
 		getExpositoresQuery,
 		registerExpositorMutation,
-		editExpositorMutation
+		editExpositorMutation,
+		removeExpositorMutation
 	}
 
 }

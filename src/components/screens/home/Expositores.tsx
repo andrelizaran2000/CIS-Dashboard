@@ -69,7 +69,13 @@ const initialStateBlank:ExpositorBodyWithId = {
 
 export default function Expositores () {
 
-  const { formValues, handleSwitch, handleFormValues, handleImageSelector, setFormValues } = useForm(initialState);
+  const { 
+    formValues, 
+    handleSwitch, 
+    handleFormValues, 
+    handleImageSelector, 
+    setFormValues 
+  } = useForm(initialState);
   const expositorFormValues = formValues as ExpositorBodyWithId;
 
   const { ui } = useSelectors();
@@ -94,11 +100,6 @@ export default function Expositores () {
     return false;
   }
 
-  function cleanForm (isEditMode:boolean) {
-    setFormValues(initialStateBlank);
-    isEditMode && toggleEditMode();
-  }
-
   function onSubmit () {
     if (!validateForm()) return;
     if (isEditMode) editExpositor(expositorFormValues); 
@@ -106,6 +107,11 @@ export default function Expositores () {
       const { id, ...restExpositor } = expositorFormValues;
       registerExpositor(restExpositor); 
     }
+  }
+
+  function cleanForm (isEditMode:boolean) {
+    setFormValues(initialStateBlank);
+    isEditMode && toggleEditMode();
   }
 
   return (
@@ -177,33 +183,26 @@ export default function Expositores () {
           />
         </PaperFormContainer>
       </Grid>
-      <ExpositoresList setFormValues={setFormValues} isLoading={isGettingExpositores}/>
+      <ExpositoresList setFormValues={setFormValues} isLoading={isGettingExpositores} isLoadingAction={isRegisteringExpositor || isEditingExpositor}/>
     </>
   )
 }
 
 
-function ExpositoresList ({ setFormValues, isLoading }:any) {
+function ExpositoresList ({ setFormValues, isLoading, isLoadingAction }:any) {
 
   const { register, ui } = useSelectors();
   const { expositores } = register;
   const { isEditMode } = ui;
   const { uiBindedActions } = useBindActions();
-  const { toggleEditMode, showSnackMessage } = uiBindedActions;
+  const { toggleEditMode } = uiBindedActions;
+  const { removeExpositorMutation } = useExpositoresQueries();
+  const { mutate, isLoading:isRemovingExpositor } = removeExpositorMutation();
 
   function editExpositor (expositor:ExpositorBodyWithId) {
     setFormValues(expositor);
     !isEditMode && toggleEditMode();
     window.scrollTo({ top:0, behavior:'smooth' });
-  }
-
-  async function removeExpositor (id:number) {
-    try {
-      await removeExpositorApi(id);
-      showSnackMessage('Ponente eliminado');
-    } catch (error:any) {
-      console.log(error);
-    }
   }
 
   return (
@@ -229,10 +228,10 @@ function ExpositoresList ({ setFormValues, isLoading }:any) {
                     <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>{description}</Typography>
                   </CardContent>
                   <CardActions disableSpacing sx={{ backgroundColor:grey[100] }}>
-                    <IconButton onClick={() => editExpositor(expositor)}> 
+                    <IconButton onClick={() => editExpositor(expositor)} disabled={isLoadingAction || isRemovingExpositor}> 
                       <ModeEditIcon/>
                     </IconButton>
-                    <IconButton onClick={() => removeExpositor(id)}>
+                    <IconButton onClick={() => mutate(id)} disabled={isLoadingAction || isRemovingExpositor}>
                       <DeleteIcon/>
                     </IconButton>
                   </CardActions>
