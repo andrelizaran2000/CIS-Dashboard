@@ -43,6 +43,7 @@ import ModeEditIcon from '@mui/icons-material/ModeEdit';
 import useForm from '../../../hooks/useForm';
 import useSelectors from '../../../hooks/useSelectors';
 import useBindActions from '../../../hooks/useBindActions';
+import useExpositoresQueries from '../../../queries/useExpositoresQueries';
 
 const initialState:ExpositorBodyWithId = {
   id:0,
@@ -70,27 +71,21 @@ export default function Expositores () {
 
   const { formValues, handleSwitch, handleFormValues, handleImageSelector, setFormValues } = useForm(initialState);
   const expositorFormValues = formValues as ExpositorBodyWithId;
-  const { ui, register } = useSelectors();
-  const { expositores } = register;
+
+  const { ui } = useSelectors();
   const { isEditMode } = ui;
-  const { uiBindedActions, registerBindedActions } = useBindActions();
-  const { setExpositores } = registerBindedActions;
+  const { uiBindedActions } = useBindActions();
   const { toggleEditMode, showSnackMessage } = uiBindedActions;
-  const [ isLoading, setIsLoading ] = useState(false);
 
+  // Queries
+  const { getExpositoresQuery, registerExpositorMutation, editExpositorMutation } = useExpositoresQueries();
+  const { refetch:getExpositores, isLoading:isGettingExpositores } = getExpositoresQuery();
+  const { mutate:registerExpositor, isLoading:isRegisteringExpositor } = registerExpositorMutation(cleanForm);
+  const { mutate:editExpositor, isLoading:isEditingExpositor } = editExpositorMutation(cleanForm);
+  
   useEffect(() => {
-    getExpositores()
+    getExpositores();
   }, []);
-
-  async function getExpositores () {
-    try {
-      const { data } = await getExpositoresApi();
-      const { speakers } = data;
-      setExpositores(speakers);
-    } catch (error:any) {
-      console.log(error)
-    }
-  }
 
   function validateForm () {
     const { coverPhoto, description, firstName, lastName, profilePhoto, title } = expositorFormValues;
@@ -99,46 +94,18 @@ export default function Expositores () {
     return false;
   }
 
-  async function onSubmitRegister () {
-    try {
-      if (!validateForm()) return;
-      setIsLoading(true)
-      const { id, ...expositorRest } = expositorFormValues;
-      await registerExpositorApi(expositorRest);
-      const newExpositores = [ ...expositores, expositorFormValues];
-      setExpositores(newExpositores);
-      showSnackMessage('Nuevo ponente registrado');
-      setFormValues(initialStateBlank);
-      setIsLoading(false)
-    } catch (error:any) {
-      console.log(error.response);
-      setIsLoading(false);
-    }
-  }
-
-  async function onSubmitEdit () {
-    try {
-      if (!validateForm()) return;
-      setIsLoading(true)
-      await editExpositorApi(expositorFormValues);
-      const newExpositores = expositores.map(({ id, ...restExpositor }) => {
-        if (id === expositorFormValues.id) return expositorFormValues;
-        return { id, ...restExpositor };
-      });
-      setExpositores(newExpositores);
-      showSnackMessage('Ponente editado');
-      setFormValues(initialStateBlank);
-      setIsLoading(false);
-      toggleEditMode();
-    } catch (error:any) {
-      console.log(error.response);
-      setIsLoading(false);
-    }
-  }
-
-  function cleanForm () {
+  function cleanForm (isEditMode:boolean) {
     setFormValues(initialStateBlank);
-    toggleEditMode();
+    isEditMode && toggleEditMode();
+  }
+
+  function onSubmit () {
+    if (!validateForm()) return;
+    if (isEditMode) editExpositor(expositorFormValues); 
+    else {
+      const { id, ...restExpositor } = expositorFormValues;
+      registerExpositor(restExpositor); 
+    }
   }
 
   return (
@@ -146,10 +113,10 @@ export default function Expositores () {
       <Grid item xs={12} lg={6} sx={allWidth}>
         <PaperFormContainer 
           primaryButtonText={isEditMode ? 'Editar' : 'Registrar'} 
-          title={isEditMode ? 'Editar expositor' : 'Registrar expositor'} 
-          onSubmit={() => isEditMode ? onSubmitEdit() : onSubmitRegister()}
-          cleanForm={cleanForm}
-          isLoading={isLoading}
+          title={isEditMode ? 'Editar ponente' : 'Registrar ponente'} 
+          onSubmit={onSubmit}
+          cleanForm={() => cleanForm(true)}
+          isLoading={isRegisteringExpositor || isEditingExpositor}
         >
           <TextField
             label='Nombre de expositor'
@@ -158,7 +125,7 @@ export default function Expositores () {
             value={expositorFormValues.firstName}
             onChange={handleFormValues}
             name='firstName'
-            disabled={isLoading}
+            disabled={isRegisteringExpositor || isEditingExpositor}
           />
           <TextField
             label='Apellido de expositor'
@@ -167,7 +134,7 @@ export default function Expositores () {
             value={expositorFormValues.lastName}
             onChange={handleFormValues}
             name='lastName'
-            disabled={isLoading}
+            disabled={isRegisteringExpositor || isEditingExpositor}
           />
           <TextField
             label='Descripción de expositor'
@@ -176,7 +143,7 @@ export default function Expositores () {
             value={expositorFormValues.description}
             onChange={handleFormValues}
             name='description'
-            disabled={isLoading}
+            disabled={isRegisteringExpositor || isEditingExpositor}
           />
           <TextField
             label='Título de expositor'
@@ -185,38 +152,38 @@ export default function Expositores () {
             value={expositorFormValues.title}
             onChange={handleFormValues}
             name='title'
-            disabled={isLoading}
+            disabled={isRegisteringExpositor || isEditingExpositor}
           />
           <CustomImageSelector 
             label='Foto de perfil' 
             inputName='profilePhoto' 
             handleImageSelector={handleImageSelector}
             value={expositorFormValues.profilePhoto}
-            disabled={isLoading}
+            disabled={isRegisteringExpositor || isEditingExpositor}
           /> 
           <CustomImageSelector 
             label='Foto de portada' 
             inputName='coverPhoto' 
             handleImageSelector={handleImageSelector}
             value={expositorFormValues.coverPhoto}
-            disabled={isLoading}
+            disabled={isRegisteringExpositor || isEditingExpositor}
           />
           <CustomSwitch
             handleSwitch={handleSwitch}
             inputName='visible'
             label='Expositor visible'
             value={expositorFormValues.visible}
-            disabled={isLoading}
+            disabled={isRegisteringExpositor || isEditingExpositor}
           />
         </PaperFormContainer>
       </Grid>
-      <ExpositoresList setFormValues={setFormValues}/>
+      <ExpositoresList setFormValues={setFormValues} isLoading={isGettingExpositores}/>
     </>
   )
 }
 
 
-function ExpositoresList ({ setFormValues }:any) {
+function ExpositoresList ({ setFormValues, isLoading }:any) {
 
   const { register, ui } = useSelectors();
   const { expositores } = register;
@@ -274,7 +241,8 @@ function ExpositoresList ({ setFormValues }:any) {
             )
           })}
         </Grid>
-        {!expositores.length && <Alert severity='warning'>No hay expositores registrados</Alert>}
+        {(!expositores.length && !isLoading) && <Alert severity='warning'>No hay expositores registrados</Alert>}
+        {isLoading && <Alert severity='info'>Cargando expositores</Alert>}
       </PaperContainer>
     </Grid>
   )

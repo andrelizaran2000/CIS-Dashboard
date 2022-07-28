@@ -10,7 +10,7 @@ type Props = {
   title:string;
   children:ReactNode;
   primaryButtonText:string;
-  onSubmit: () => Promise<void>;
+  onSubmit: () => void;
   cleanForm: () => void;
   isLoading:boolean;
 }
@@ -23,7 +23,7 @@ export default function PaperFormContainer({ title, children, primaryButtonText,
       <Stack rowGap={2}>
         <Typography variant='h6' mb={1} color={grey[700]}>{title}</Typography>
         {children}
-        {isEditMode && <Button variant='contained' type='submit' color='error' onClick={() => cleanForm()}>Limpiar</Button>}
+        {isEditMode && <Button variant='contained' type='submit' color='error' onClick={() => cleanForm()} disabled={isLoading}>Limpiar</Button>}
         <Button variant='contained' type='submit' disabled={isLoading}>{primaryButtonText}</Button>
       </Stack>
     </Paper>

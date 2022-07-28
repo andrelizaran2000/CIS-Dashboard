@@ -9,7 +9,7 @@ export function getExpositoresApi () {
 }
 
 export function registerExpositorApi (data:ExpositorBody) {
-  return axiosInstanceWithAuth.post<null>('/api-dashboard/speakers.php', data);
+  return axiosInstanceWithAuth.post<{ id:number }>('/api-dashboard/speakers.php', data);
 }
 
 export function editExpositorApi (expositor:ExpositorBodyWithId) {
