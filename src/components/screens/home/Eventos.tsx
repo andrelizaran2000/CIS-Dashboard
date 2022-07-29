@@ -9,6 +9,7 @@ import {
   CardContent, 
   CardHeader, 
   CardMedia, 
+  Chip, 
   Grid, 
   IconButton, 
   Stack, 
@@ -36,6 +37,7 @@ import CustomImageSelector from '../../forms/CustomImageSelector';
 // Icons
 import DeleteIcon from '@mui/icons-material/Delete';
 import ModeEditIcon from '@mui/icons-material/ModeEdit';
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 
 const initialState:EventoBodyWithId = {
   id:0,
@@ -215,7 +217,11 @@ function EventosList ({ setFormValues, isLoading, isLoadingAction }:any) {
                     image={flyer}
                   />
                   <CardContent sx={{ backgroundColor:grey[100] }}>
-                    <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>{description}</Typography>
+                    <Typography sx={{ fontSize: 14 }} color="text.secondary" mb={2}>{description}</Typography>
+                    <Stack alignItems='start' rowGap={1}>
+                      <Chip icon={<CalendarTodayIcon fontSize='small'/>} sx={{ padding:1 }} label={`Fecha de inicio: ${initDate}`}/>
+                      <Chip icon={<CalendarTodayIcon fontSize='small'/>} sx={{ padding:1 }} label={`Fecha de cierre: ${endDate}`}/>
+                    </Stack>
                   </CardContent>
                   <CardActions disableSpacing sx={{ backgroundColor:grey[100] }}>
                     <IconButton onClick={() => { editEvento(evento)}} disabled={isRemovingEvento || isLoadingAction}> 
