@@ -65,7 +65,7 @@ export default function Eventos() {
     handleFormValues, 
     setFormValues, 
     handleSwitch 
-  } = useForm(initialState);
+  } = useForm(initialStateBlank);
   const eventoFormValues = formValues as EventoBodyWithId;
 
   const { ui } = useSelectors();
@@ -132,26 +132,32 @@ export default function Eventos() {
             name='description'
             disabled={isRegisteringEvento || isEditingEvento}
           />
-          <Stack flexDirection='column'>
-            <Typography variant='subtitle2' mb={1}>Fecha de inicio</Typography>
-            <TextField
-              type='date'
-              value={eventoFormValues.initDate}
-              onChange={handleFormValues}
-              name='initDate'
-              disabled={isRegisteringEvento || isEditingEvento}
-            />
-          </Stack>
-          <Stack flexDirection='column'>
-            <Typography variant='subtitle2' mb={1}>Fecha de cierre</Typography>
-            <TextField
-              type='date'
-              value={eventoFormValues.endDate}
-              onChange={handleFormValues}
-              name='endDate'
-              disabled={isRegisteringEvento || isEditingEvento}
-            />
-          </Stack>
+          <Grid container spacing={2}>
+            <Grid item xs={12} md={6}>
+              <Stack flexDirection='column'>
+                <Typography variant='subtitle2' mb={1}>Fecha de inicio</Typography>
+                <TextField
+                  type='date'
+                  value={eventoFormValues.initDate}
+                  onChange={handleFormValues}
+                  name='initDate'
+                  disabled={isRegisteringEvento || isEditingEvento}
+                />
+              </Stack>
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <Stack flexDirection='column'>
+                <Typography variant='subtitle2' mb={1}>Fecha de cierre</Typography>
+                <TextField
+                  type='date'
+                  value={eventoFormValues.endDate}
+                  onChange={handleFormValues}
+                  name='endDate'
+                  disabled={isRegisteringEvento || isEditingEvento}
+                />
+              </Stack>
+            </Grid>
+          </Grid>
           <CustomImageSelector 
             label='Flyer de evento' 
             inputName='flyer' 

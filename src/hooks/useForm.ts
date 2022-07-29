@@ -17,12 +17,17 @@ export default function useForm (initialState:any) {
     setFormValues({ ...formValues, [inputName]:value });
   }
 
+  function handleSelect (inputName:string, value:number ) {
+    setFormValues({ ...formValues, [inputName]:value });
+  }
+
   return {
     formValues,
     setFormValues, 
     handleFormValues,
     handleSwitch,
-    handleImageSelector
+    handleImageSelector,
+    handleSelect
   }
 
 }

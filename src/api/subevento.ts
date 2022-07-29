@@ -9,10 +9,11 @@ export function getSubeventosApi () {
 }
 
 export function registerSubeventoApi (subevent:SubeventoBody) {
-  return axiosInstanceWithAuth.post<null>('/api-dashboard/subevents.php', subevent);
+  const { eventId, ...restSubevent } = subevent;
+  return axiosInstanceWithAuth.post<null>(`/api-dashboard/subevents.php?idEvent=${eventId}`, restSubevent);
 }
 
 export function editSubeventoApi (subevent:SubeventoBodyWithId) {
   const { id, ...restSubevent } = subevent;
-  return axiosInstanceWithAuth.put<null>(`/api-dashboard/subevents.php?id=:${id}`, restSubevent);
+  return axiosInstanceWithAuth.put<null>(`/api-dashboard/subevents.php?id=${id}`, restSubevent);
 }

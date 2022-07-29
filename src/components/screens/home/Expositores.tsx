@@ -75,7 +75,7 @@ export default function Expositores () {
     handleFormValues, 
     handleImageSelector, 
     setFormValues 
-  } = useForm(initialState);
+  } = useForm(initialStateBlank);
   const expositorFormValues = formValues as ExpositorBodyWithId;
 
   const { ui } = useSelectors();
@@ -183,7 +183,11 @@ export default function Expositores () {
           />
         </PaperFormContainer>
       </Grid>
-      <ExpositoresList setFormValues={setFormValues} isLoading={isGettingExpositores} isLoadingAction={isRegisteringExpositor || isEditingExpositor}/>
+      <ExpositoresList 
+        setFormValues={setFormValues} 
+        isLoading={isGettingExpositores} 
+        isLoadingAction={isRegisteringExpositor || isEditingExpositor}
+      />
     </>
   )
 }
