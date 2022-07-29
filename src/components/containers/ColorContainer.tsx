@@ -66,7 +66,7 @@ export default function ColorContainer ({ bgColor, children, window }:Props) {
 
   function handleLogOut () {
     logoutUser();
-    navigation('/login');
+    navigation('/');
     if (isEditMode) toggleEditMode();
   }
 
