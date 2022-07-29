@@ -20,7 +20,7 @@ export default function useUserQueries() {
       onSuccess: ({ data }) => {
         loginUser(data);
         localStorage.setItem('cis-token', data.token);
-        navigation('/');
+        navigation('/home');
       },
       onError:() => {
         showSnackMessage('Error en los datos de usuario');
