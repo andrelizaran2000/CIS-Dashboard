@@ -14,7 +14,7 @@ export default function Router() {
     <BrowserRouter>
       <Routes> 
         <Route 
-          path="/"     
+          path="/home"     
           element={
             <PrivateRoute>
               <Home/>
@@ -22,7 +22,7 @@ export default function Router() {
           }
         />
         <Route 
-          path="/login" 
+          path="/" 
           element={
             <PublicRoute>
               <Login/>

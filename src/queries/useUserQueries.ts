@@ -19,6 +19,7 @@ export default function useUserQueries() {
     return useMutation(loginApi, {
       onSuccess: ({ data }) => {
         loginUser(data);
+        localStorage.setItem('cis-token', data.token);
         navigation('/');
       },
       onError:() => {
@@ -32,11 +33,11 @@ export default function useUserQueries() {
       onSuccess: ({ data }) => {
         loginUser(data);
         localStorage.setItem('cis-token', data.token);
-        navigation('/');
+        navigation('/home');
       },
       onError: () => {
         localStorage.removeItem('cis-token');
-        navigation('/login');
+        navigation('/');
       },
     });
   }

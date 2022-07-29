@@ -3,12 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { Grid, TextField } from '@mui/material';
 import { blue, grey } from '@mui/material/colors';
 
-// Api
-import { loginApi } from '../api/user';
-
-// Hooks
-import useBindActions from '../hooks/useBindActions';
-
 // Components
 import PaperFormContainer from '../components/forms/PaperFormContainer';
 

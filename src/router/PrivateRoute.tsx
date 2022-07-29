@@ -14,8 +14,9 @@ export default function PrivateRoute ({ children }:any) {
   }, []);
 
   const { validateToken } = useUserQueries();
-  const { mutate, isLoading } = validateToken();
+  const { mutate, isLoading, data } = validateToken();
 
   if (isLoading) return <LoadingScreen/>
-  else return children;
+  if (!isLoading && data !== undefined) return children;
+  else return <></>
 }
