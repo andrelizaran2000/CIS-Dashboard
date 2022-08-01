@@ -29,11 +29,11 @@ import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import PeopleOutlineIcon from '@mui/icons-material/PeopleOutline';
 
 // Hooks
+import useSelectors from '../../hooks/useSelectors';
 import useBindActions from '../../hooks/useBindActions';
 
 // Types
 import { PossibleHomeSections } from '../../store/types/ui';
-import useSelectors from '../../hooks/useSelectors';
 
 type Props = {
   bgColor:string;
@@ -46,7 +46,8 @@ const drawerWidth = 240;
 const menuOptions = [
   'Expositores',
   'Eventos', 
-  'Subeventos'
+  'Subeventos',
+  'Registro de expositores a subeventos'
 ]
 
 export default function ColorContainer ({ bgColor, children, window }:Props) {
@@ -81,6 +82,9 @@ export default function ColorContainer ({ bgColor, children, window }:Props) {
         break;
       case 2:
         section = 'subeventos';
+        break;
+      case 3:
+        section = 'expositores-subeventos';
         break;
     }
     isEditMode && toggleEditMode();

@@ -1,6 +1,6 @@
 // Modules
 import { useEffect, useState } from 'react';
-import { blueGrey, green, orange } from '@mui/material/colors';
+import { blueGrey, green, orange, red } from '@mui/material/colors';
 
 // Components
 import Eventos from '../components/screens/home/Eventos';
@@ -10,6 +10,7 @@ import ColorContainer from '../components/containers/ColorContainer';
 
 // Hooks
 import useSelectors from '../hooks/useSelectors';
+import ExpositoresSubeventos from '../components/screens/home/ExpositoresSubeventos';
 
 export default function Home() {
 
@@ -28,6 +29,9 @@ export default function Home() {
       case 'expositores':
         setBgColor(blueGrey[300]);
         break;
+      case 'expositores-subeventos':
+        setBgColor(red[300]);
+        break;
     }
   }, [homeSection])
   
@@ -36,6 +40,7 @@ export default function Home() {
       {homeSection === 'expositores' && <Expositores/>}
       {homeSection === 'eventos' && <Eventos/>}
       {homeSection === 'subeventos' && <Subeventos/>}
+      {homeSection === 'expositores-subeventos' && <ExpositoresSubeventos/>}
     </ColorContainer>
   )
 }

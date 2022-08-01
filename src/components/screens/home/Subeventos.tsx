@@ -45,28 +45,14 @@ const initialStateBlank:SubeventoBody = {
   initHour:'',
   initDate:'',
   endHour:'',
-  endDate:'',
   flyer:'',
-  register: true,
-  type:1,
+  register:true,
+  type:0,
   limit:0,
-  status:1,
-  eventId:1
-}
-
-const initialState:SubeventoBody = {
-  name:'Typescript',
-  description:'Enim ullamco minim consectetur dolor aliqua quis voluptate pariatur reprehenderit.',
-  initHour:'19:04',
-  initDate:'',
-  endHour:'20:04',
-  endDate:'',
-  flyer:'',
-  register: true,
-  type:1,
-  limit:200,
-  status:1,
-  eventId:1
+  status:0,
+  eventId:0,
+  eventLink:'',
+  formLink:''
 }
 
 export default function Subeventos() {
@@ -102,8 +88,8 @@ export default function Subeventos() {
   }, []);
 
   function validateForm () {
-    const { name, description, initDate, endDate, flyer } = subeventoFormValues;
-    if (name && description && initDate && endDate && flyer) return true;
+    const { name, description, initDate, initHour, endHour, flyer, eventLink, formLink } = subeventoFormValues;
+    if (name && description && initDate && flyer && initHour && endHour && eventLink && formLink) return true;
     showSnackMessage('No has completado toda la información del formulario');
     return false;
   }
@@ -152,7 +138,7 @@ export default function Subeventos() {
           />
           <TextField
             label='Limite'
-            type='number'
+            type='text'
             autoComplete='off'
             value={subeventoFormValues.limit}
             onChange={handleFormValues}
@@ -166,12 +152,6 @@ export default function Subeventos() {
             value={subeventoFormValues.eventId}
             handleSelect={handleSelect}
           />
-          {/* <TimePicker
-            label="Hora de inicio"
-            value={subeventoFormValues.initDate}
-            onChange={handleChange}
-            renderInput={(params) => <TextField {...params} />}
-          /> */}
           <Grid container spacing={2}>
             <Grid item xs={12} md={6}>
               <CustomSelect
@@ -192,32 +172,56 @@ export default function Subeventos() {
               />
             </Grid>
           </Grid>
+          <TextField
+            value={subeventoFormValues.initDate}
+            onChange={handleFormValues}
+            label="Fecha de realización"
+            type="date"
+            defaultValue="2017-05-24"
+            name='initDate'
+            InputLabelProps={{ shrink: true }}
+            disabled={isEditingSubevento || isRegisteringSubevento}
+          />
           <Grid container spacing={2}>
             <Grid item xs={12} md={6}>
               <Stack flexDirection='column'>
-                <Typography variant='subtitle2'>Fecha de inicio</Typography>
                 <TextField
-                  type='date'
-                  value={subeventoFormValues.initDate}
-                  onChange={handleFormValues}
-                  name='initDate'
-                  disabled={isEditingSubevento || isRegisteringSubevento}
+                  label="Hora de inicio"
+                  type="time"
+                  defaultValue="07:30"
+                  InputLabelProps={{ shrink: true,}}
+                  inputProps={{ step: 300 }}
                 />
               </Stack>
             </Grid>
-            <Grid item xs={12} md={6}>
-              <Stack flexDirection='column'>
-                <Typography variant='subtitle2'>Fecha de cierre</Typography>
-                <TextField
-                  type='date'
-                  value={subeventoFormValues.initDate}
-                  onChange={handleFormValues}
-                  name='endDate'
-                  disabled={isEditingSubevento || isRegisteringSubevento}
-                />
-              </Stack>
+            <Grid item xs={12} md={6} sx={{ display:'flex', flexDirection:'column' }}>   
+              <TextField
+                label="Fecha de de finalización"
+                type="time"
+                defaultValue="09:30"
+                InputLabelProps={{ shrink: true,}}
+                inputProps={{ step: 300 }}
+              />           
             </Grid>
           </Grid>
+          <TextField
+            label='Link de formulario'
+            type='text'
+            autoComplete='off'
+            value={subeventoFormValues.formLink}
+            onChange={handleFormValues}
+            name='formLink'
+            disabled={isEditingSubevento || isRegisteringSubevento}
+          />
+          <TextField
+            label='Link de evento'
+            type='text'
+            autoComplete='off'
+            value={subeventoFormValues.eventLink}
+            onChange={handleFormValues}
+            name='eventLink'
+            disabled={isEditingSubevento || isRegisteringSubevento}
+          />
           <CustomImageSelector 
             label='Flyer de subevento' 
             inputName='flyer' 
@@ -262,7 +266,7 @@ function SubeventosList ({ setFormValues, isLoading, isLoadingAction }:any) {
       <PaperContainer title='Subeventos guardados'>
         <Grid container spacing={2}>
           {subeventos.map((subevento, index) => {
-            const { description, endDate, flyer, initDate, name } = subevento;
+            const { description, flyer, initDate, name } = subevento;
             return (
               <Grid item xs={12} md={6} lg={12} xl={6} key={index}>
                 <Card>
