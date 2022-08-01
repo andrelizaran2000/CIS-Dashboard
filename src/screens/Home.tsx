@@ -7,16 +7,33 @@ import Eventos from '../components/screens/home/Eventos';
 import Subeventos from '../components/screens/home/Subeventos';
 import Expositores from '../components/screens/home/Expositores';
 import ColorContainer from '../components/containers/ColorContainer';
+import ExpositoresSubeventos from '../components/screens/home/ExpositoresSubeventos';
 
 // Hooks
 import useSelectors from '../hooks/useSelectors';
-import ExpositoresSubeventos from '../components/screens/home/ExpositoresSubeventos';
+import useSubeventosQueries from '../queries/useSubeventosQueries';
+import useEventosQueries from '../queries/useEventosQueries';
+import useExpositoresQueries from '../queries/useExpositoresQueries';
 
 export default function Home() {
 
   const { ui } = useSelectors();
   const { homeSection } = ui;
   const [ bgColor, setBgColor ] = useState<string>(blueGrey[400]);
+
+  const { getSubeventosQuery } = useSubeventosQueries();
+  const { getEventosQuery } = useEventosQueries();
+  const { getExpositoresQuery } = useExpositoresQueries();
+
+  const { refetch:getExpositores } = getExpositoresQuery();
+  const { refetch:getEventos } = getEventosQuery();
+  const { refetch:getSubeventos } = getSubeventosQuery();
+
+  useEffect(() => {
+    getExpositores();
+    getEventos();
+    getSubeventos();
+  }, [])
   
   useEffect(() => {
     switch (homeSection) {

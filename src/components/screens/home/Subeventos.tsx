@@ -74,7 +74,7 @@ export default function Subeventos() {
 
   // Queries
   const { editSubeventoMutation, getSubeventosQuery, registerSubeventoMutation } = useSubeventosQueries();
-  const { refetch:getSubeventos, isLoading:isGettingSubeventos } = getSubeventosQuery();
+  
   const { mutate:editSubevento, isLoading:isEditingSubevento } = editSubeventoMutation(cleanForm);
   const { mutate:registerSubevento, isLoading:isRegisteringSubevento } = registerSubeventoMutation(cleanForm);
 
@@ -82,7 +82,6 @@ export default function Subeventos() {
   const [eventos, setEventos] = useState<{ value: number; label: string;}[]>([]);
 
   useEffect(() => {
-    getSubeventos();
     const options = register.eventos.map(({ id, title }) => ({ value:Number(id), label:title }));
     setEventos(options);
   }, []);
@@ -240,14 +239,13 @@ export default function Subeventos() {
       </Grid>
       <SubeventosList 
         setFormValues={setFormValues}
-        isLoading={isGettingSubeventos}
         isLoadingAction={isEditingSubevento || isRegisteringSubevento}
       />
     </>
   )
 }
 
-function SubeventosList ({ setFormValues, isLoading, isLoadingAction }:any) {
+function SubeventosList ({ setFormValues, isLoadingAction }:any) {
 
   const { register, ui } = useSelectors();
   const { subeventos } = register;
@@ -296,7 +294,6 @@ function SubeventosList ({ setFormValues, isLoading, isLoadingAction }:any) {
           })}
         </Grid>
         {!subeventos.length && <Alert severity='warning'>No hay subeventos registrados</Alert>}
-        {isLoading && <Alert severity='info'>Cargando subeventos</Alert>}
       </PaperContainer>
     </Grid>
   )

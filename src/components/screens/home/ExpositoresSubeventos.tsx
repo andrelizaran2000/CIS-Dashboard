@@ -1,5 +1,6 @@
 // Modules
 import { Grid } from "@mui/material";
+import { useEffect, useState } from "react";
 
 // Components
 import CustomSelect from "../../forms/CustomSelect";
@@ -10,12 +11,10 @@ import { allWidth } from "../../containers/ColorContainer";
 
 // Hooks
 import useForm from "../../../hooks/useForm";
+import useSelectors from "../../../hooks/useSelectors";
 
 // Types
 import { ExpositoresSubeventosBody } from "../../../types/expositoresSubeventos";
-import { useEffect, useState } from "react";
-import useSubeventosQueries from "../../../queries/useSubeventosQueries";
-import useSelectors from "../../../hooks/useSelectors";
 
 const initialStateBlank:ExpositoresSubeventosBody = {
   eventId:0,
@@ -24,10 +23,11 @@ const initialStateBlank:ExpositoresSubeventosBody = {
 
 export default function ExpositoresSubeventos() {
 
-  // 
+  // Selectors
   const { register } = useSelectors();
   const { expositores, subeventos } = register;
 
+  // Options
   const [subeventosMapped, setSubEventos] = useState<{ value: number; label: string;}[]>([]);
   const [expositoresMapped, setExpositores] = useState<{ value: number; label: string;}[]>([]);
 
