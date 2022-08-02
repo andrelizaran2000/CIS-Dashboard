@@ -7,4 +7,4 @@ export type EventoBody = {
   register:boolean;
 }
 
-export type EventoBodyWithId = EventoBody & { id:number };
+export type EventoBodyWithId = EventoBody & { id:string };

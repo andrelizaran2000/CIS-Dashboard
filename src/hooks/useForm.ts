@@ -9,16 +9,26 @@ export default function useForm (initialState:any) {
     setFormValues({ ...formValues, [e.target.name]:e.target.value });
   }
 
-  function handleSwitch (inputName:string, value:boolean ) {
+  function handleSwitch (inputName:string, value:boolean) {
     setFormValues({ ...formValues, [inputName]:value });
   }
 
-  function handleImageSelector (inputName:string, value:boolean ) {
+  function handleImageSelector (inputName:string, value:boolean) {
     setFormValues({ ...formValues, [inputName]:value });
   }
 
-  function handleSelect (inputName:string, value:number ) {
+  function handleSelect (inputName:string, value:string) {
     setFormValues({ ...formValues, [inputName]:value });
+  }
+
+  function handleSelectArray (inputName:string, inputNameValues:string, selectedValueWithAllInformation:{ value:string, label:string }) {
+    const mappedExpositores:string[] = formValues[inputNameValues].map(({ value }:any) => (value));
+    if (!mappedExpositores.includes(selectedValueWithAllInformation.value)) 
+      setFormValues({ 
+        ...formValues, 
+        [inputNameValues]:[...formValues[inputNameValues], selectedValueWithAllInformation],
+        [inputName]:selectedValueWithAllInformation.value
+      });
   }
 
   return {
@@ -27,7 +37,8 @@ export default function useForm (initialState:any) {
     handleFormValues,
     handleSwitch,
     handleImageSelector,
-    handleSelect
+    handleSelect,
+    handleSelectArray
   }
 
 }

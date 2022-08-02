@@ -8,4 +8,4 @@ export type ExpositorBody = {
   coverPhoto:string;
 }
 
-export type ExpositorBodyWithId = ExpositorBody & { id:number };
+export type ExpositorBodyWithId = ExpositorBody & { id:string };

@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { 
   Alert, 
   Avatar, 
+  Box, 
   Card, 
   CardActions, 
   CardContent, 
@@ -11,6 +12,9 @@ import {
   CardMedia, 
   Grid, 
   IconButton, 
+  List, 
+  ListItem, 
+  ListItemText, 
   Stack, 
   TextField, 
   Typography 
@@ -18,7 +22,6 @@ import {
 
 // Components
 import CustomSelect from '../../forms/CustomSelect';
-import CustomSwitch from '../../forms/CustomSwitch';
 import PaperContainer from '../../containers/PaperContainer';
 import PaperFormContainer from '../../forms/PaperFormContainer';
 import CustomImageSelector from '../../forms/CustomImageSelector';
@@ -40,19 +43,18 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import ModeEditIcon from '@mui/icons-material/ModeEdit';
 
 const initialStateBlank:SubeventoBody = {
-  name:'',
-  description:'',
-  initHour:'',
-  initDate:'',
-  endHour:'',
-  flyer:'',
-  register:true,
-  type:0,
-  limit:0,
-  status:0,
-  eventId:0,
+  name:'Aprende JS desde cero',
+  description:'Generic description',
+  initHour:'07:30',
+  initDate:'2022-01-01',
+  endHour:'09:30',
+  flyer:'https://www.adictosaltrabajo.com/wp-content/uploads/2018/05/el_remozado_javascript.imagen.jpg',
+  type:'1',
+  eventId:'1',
   eventLink:'',
-  formLink:''
+  formLink:'',
+  expositorId:'1',
+  expositoresIds:[]
 }
 
 export default function Subeventos() {
@@ -62,8 +64,8 @@ export default function Subeventos() {
     handleFormValues, 
     handleImageSelector, 
     setFormValues, 
-    handleSwitch, 
-    handleSelect 
+    handleSelect,
+    handleSelectArray 
   } = useForm(initialStateBlank);
   
   const subeventoFormValues = formValues as SubeventoBodyWithId;
@@ -74,19 +76,25 @@ export default function Subeventos() {
 
   // Queries
   const { editSubeventoMutation, getSubeventosQuery, registerSubeventoMutation } = useSubeventosQueries();
-  
   const { mutate:editSubevento, isLoading:isEditingSubevento } = editSubeventoMutation(cleanForm);
   const { mutate:registerSubevento, isLoading:isRegisteringSubevento } = registerSubeventoMutation(cleanForm);
 
   // Eventos options
-  const [eventos, setEventos] = useState<{ value: number; label: string;}[]>([]);
+  const [eventos, setEventos] = useState<{ value: string; label: string;}[]>([]);
+  const [expositores, setExpositores] = useState<{ value: string; label: string;}[]>([]);
 
   useEffect(() => {
-    const options = register.eventos.map(({ id, title }) => ({ value:Number(id), label:title }));
+    const options = register.eventos.map(({ id, title }) => ({ value:id, label:title }));
     setEventos(options);
   }, []);
 
+  useEffect(() => {
+    const options = register.expositores.map(({ id, firstName, lastName }) => ({ value:id, label:`${firstName} ${lastName}`}));
+    setExpositores(options);
+  }, []);
+
   function validateForm () {
+    console.log(subeventoFormValues)
     const { name, description, initDate, initHour, endHour, flyer, eventLink, formLink } = subeventoFormValues;
     if (name && description && initDate && flyer && initHour && endHour && eventLink && formLink) return true;
     showSnackMessage('No has completado toda la información del formulario');
@@ -135,23 +143,26 @@ export default function Subeventos() {
             name='description'
             disabled={isEditingSubevento || isRegisteringSubevento}
           />
-          <TextField
-            label='Limite'
-            type='text'
-            autoComplete='off'
-            value={subeventoFormValues.limit}
-            onChange={handleFormValues}
-            name='limit'
-            disabled={isEditingSubevento || isRegisteringSubevento}
-          />
           <CustomSelect
-            options={eventos}
-            label='Evento al que pertenece'
-            inputName='eventId'
-            value={subeventoFormValues.eventId}
-            handleSelect={handleSelect}
+            options={expositores}
+            label='Expositores participantes'
+            inputName='expositorId'
+            inputNameValues='expositoresIds'
+            value={subeventoFormValues.expositorId}
+            values={subeventoFormValues.expositoresIds}
+            handleSelectArray={handleSelectArray}
           />
+          {(subeventoFormValues.expositoresIds.length > 0) && <ExpositoresList expositoresList={subeventoFormValues.expositoresIds}/>} 
           <Grid container spacing={2}>
+            <Grid item xs={12} md={6}>
+              <CustomSelect
+                options={eventos}
+                label='Evento al que pertenece'
+                inputName='eventId'
+                value={subeventoFormValues.eventId}
+                handleSelect={handleSelect}
+              />
+            </Grid>
             <Grid item xs={12} md={6}>
               <CustomSelect
                 options={subeventTypes}
@@ -161,45 +172,37 @@ export default function Subeventos() {
                 handleSelect={handleSelect}
               />
             </Grid>
-            <Grid item xs={12} md={6}>
-              <CustomSelect
-                options={subeventStatus}
-                label='Estatus del evento'
-                inputName='status'
-                value={subeventoFormValues.status}
-                handleSelect={handleSelect}
-              />
-            </Grid>
           </Grid>
           <TextField
             value={subeventoFormValues.initDate}
             onChange={handleFormValues}
             label="Fecha de realización"
             type="date"
-            defaultValue="2017-05-24"
             name='initDate'
             InputLabelProps={{ shrink: true }}
             disabled={isEditingSubevento || isRegisteringSubevento}
           />
           <Grid container spacing={2}>
-            <Grid item xs={12} md={6}>
-              <Stack flexDirection='column'>
-                <TextField
-                  label="Hora de inicio"
-                  type="time"
-                  defaultValue="07:30"
-                  InputLabelProps={{ shrink: true,}}
-                  inputProps={{ step: 300 }}
-                />
-              </Stack>
+            <Grid item xs={12} md={6} sx={{ display:'flex', flexDirection:'column' }}>
+              <TextField
+                label="Hora de inicio"
+                type="time"
+                value={subeventoFormValues.initHour}
+                InputLabelProps={{ shrink: true,}}
+                inputProps={{ step: 300 }}
+                onChange={handleFormValues}
+                name='initHour'
+              />
             </Grid>
             <Grid item xs={12} md={6} sx={{ display:'flex', flexDirection:'column' }}>   
               <TextField
                 label="Fecha de de finalización"
                 type="time"
-                defaultValue="09:30"
+                value={subeventoFormValues.endHour}
                 InputLabelProps={{ shrink: true,}}
                 inputProps={{ step: 300 }}
+                onChange={handleFormValues}
+                name='endHour'
               />           
             </Grid>
           </Grid>
@@ -228,13 +231,6 @@ export default function Subeventos() {
             value={subeventoFormValues.flyer}
             disabled={isEditingSubevento || isRegisteringSubevento}
           />
-          <CustomSwitch
-            handleSwitch={handleSwitch}
-            inputName='register'
-            label='Registro disponible'
-            value={subeventoFormValues.register}
-            disabled={isEditingSubevento || isRegisteringSubevento}
-          />
         </PaperFormContainer>
       </Grid>
       <SubeventosList 
@@ -242,6 +238,26 @@ export default function Subeventos() {
         isLoadingAction={isEditingSubevento || isRegisteringSubevento}
       />
     </>
+  )
+}
+
+function ExpositoresList ({ expositoresList }:any) {
+  return (
+    <Stack>
+      <Typography variant='subtitle1' pl={1}>Expositores escogidos</Typography>
+      <List>
+        {expositoresList.map(({ label }:any, key:any) => (
+          <ListItem 
+            key={key}
+            secondaryAction={<IconButton edge="end"><DeleteIcon /></IconButton>}
+          >
+            <ListItemText
+              secondary={label}
+            />
+          </ListItem>
+        ))}
+      </List>
+    </Stack>
   )
 }
 
@@ -300,14 +316,8 @@ function SubeventosList ({ setFormValues, isLoadingAction }:any) {
 }
 
 const subeventTypes = [
-  { label:'Taller', value:1 },
-  { label:'Curso', value:2 },
-  { label:'Conferencia', value:3 },
-  { label:'Práctica', value:4 },
-]
-
-const subeventStatus = [
-  { label:'En curso', value:1 },
-  { label:'Pospuesto', value:2 },
-  { label:'Cancelado', value:3 },
+  { label:'Taller', value:'1' },
+  { label:'Curso', value:'2' },
+  { label:'Conferencia', value:'3' },
+  { label:'Práctica', value:'4' },
 ]

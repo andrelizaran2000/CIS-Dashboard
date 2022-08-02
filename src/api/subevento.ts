@@ -10,6 +10,7 @@ export function getSubeventosApi () {
 
 export function registerSubeventoApi (subevent:SubeventoBody) {
   const { eventId, ...restSubevent } = subevent;
+  subevent.initDate = `${subevent.initDate} ${subevent.initHour}`;
   return axiosInstanceWithAuth.post<null>(`/api-dashboard/subevents.php?idEvent=${eventId}`, restSubevent);
 }
 

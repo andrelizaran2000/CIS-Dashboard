@@ -26,7 +26,6 @@ import EventIcon from '@mui/icons-material/Event';
 import PeopleIcon from '@mui/icons-material/People';
 import LogoutIcon from '@mui/icons-material/Logout';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
-import PeopleOutlineIcon from '@mui/icons-material/PeopleOutline';
 
 // Hooks
 import useSelectors from '../../hooks/useSelectors';
@@ -47,7 +46,6 @@ const menuOptions = [
   'Expositores',
   'Eventos', 
   'Subeventos',
-  'Registro de expositores a subeventos'
 ]
 
 export default function ColorContainer ({ bgColor, children, window }:Props) {
@@ -83,9 +81,6 @@ export default function ColorContainer ({ bgColor, children, window }:Props) {
       case 2:
         section = 'subeventos';
         break;
-      case 3:
-        section = 'expositores-subeventos';
-        break;
     }
     isEditMode && toggleEditMode();
     toggleHomeSection(section as PossibleHomeSections)
@@ -104,7 +99,6 @@ export default function ColorContainer ({ bgColor, children, window }:Props) {
                 {index === 1 && <EventIcon/> }
                 {index === 2 && <CalendarMonthIcon/> }
                 {index === 3 && <PeopleIcon/> }
-                {index === 4 && <PeopleOutlineIcon/> }
               </ListItemIcon>
               <ListItemText primary={text} />
             </ListItemButton>

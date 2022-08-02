@@ -5,13 +5,12 @@ export type SubeventoBody = {
   initDate:string;
   endHour:string;
   flyer:string;
-  register:boolean;
-  type:number;
-  limit:number;
-  status:number;
-  eventId:number;
+  type:string;
+  eventId:string;
   eventLink:string;
   formLink:string;
+  expositorId:string;
+  expositoresIds:{ value:number, label:string }[];
 }
 
-export type SubeventoBodyWithId = SubeventoBody & { id:number };
+export type SubeventoBodyWithId = SubeventoBody & { id:string };

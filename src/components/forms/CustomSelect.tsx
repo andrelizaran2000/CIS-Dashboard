@@ -1,15 +1,31 @@
 // Modules
-import { FormControl, InputLabel, MenuItem, Select } from '@mui/material';
+import { FormControl, InputLabel, MenuItem, Select, SelectChangeEvent } from '@mui/material';
 
 type Props = {
-  options:{ label:string; value:number }[];
+  options:{ label:string; value:string }[];
   label:string;
   inputName:string;
-  value:number;
-  handleSelect:(inputName:string, value:number) => void;
+  value:string;
+  values?:{ value:number, label:string }[];
+  inputNameValues?:string;
+  handleSelect?: HandleSelect | undefined;
+  handleSelectArray?: HandleSelectArray | undefined;
 }
 
-export default function CustomSelect ({ label, options, inputName, value, handleSelect}:Props) {
+type HandleSelect = (inputName:string, value:string) => void;
+
+type HandleSelectArray = (inputName:string, inputNameValues:string, selectedValueWithAllInformation:{ value:string, label:string }) => void;
+
+export default function CustomSelect ({ label, options, inputName, inputNameValues = '', value, handleSelect, handleSelectArray}:Props) {
+
+  function handleSelectFunctions (e:SelectChangeEvent<string>) {
+    const selectedValue = e.target.value;
+    const filteredOptions = options.filter(({ value }) => value === selectedValue);
+    const selectedValueWithAllInformation = filteredOptions[0];
+    if (handleSelect !== undefined) handleSelect(inputName, selectedValueWithAllInformation.value)
+    if (handleSelectArray !== undefined) handleSelectArray(inputName, inputNameValues, selectedValueWithAllInformation);
+  }
+
   return (
     <FormControl fullWidth>
       <InputLabel>{label}</InputLabel>
@@ -17,7 +33,7 @@ export default function CustomSelect ({ label, options, inputName, value, handle
         label={label} 
         value={value} 
         name={inputName} 
-        onChange={(e) => handleSelect(inputName, Number(e.target.value))}
+        onChange={handleSelectFunctions}
       >
         {options.map(({ label, value }, index) => <MenuItem value={value} key={index}>{label}</MenuItem>)}
       </Select>

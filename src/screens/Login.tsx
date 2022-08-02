@@ -1,5 +1,4 @@
 // Modules
-import { useNavigate } from 'react-router-dom';
 import { Grid, TextField } from '@mui/material';
 import { blue, grey } from '@mui/material/colors';
 
@@ -8,10 +7,10 @@ import PaperFormContainer from '../components/forms/PaperFormContainer';
 
 // Hooks
 import useForm from '../hooks/useForm';
+import useUserQueries from '../queries/useUserQueries';
 
 // Types
 import { LoginBody } from '../types/user';
-import useUserQueries from '../queries/useUserQueries';
 
 const initialState = {
   userName:'dumb-user',
