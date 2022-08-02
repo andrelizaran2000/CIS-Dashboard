@@ -26,13 +26,13 @@ export default function Home() {
 
   const { refetch:getExpositores } = getExpositoresQuery();
   const { refetch:getEventos } = getEventosQuery();
-  const { refetch:getSubeventos } = getSubeventosQuery();
+  const { refetch:getSubeventos } = getSubeventosQuery()
 
   useEffect(() => {
     getExpositores();
     getEventos();
     getSubeventos();
-  }, [])
+  } ,[])
   
   useEffect(() => {
     switch (homeSection) {

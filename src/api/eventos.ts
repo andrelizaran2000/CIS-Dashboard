@@ -9,7 +9,7 @@ export function getEventosApi () {
 }
 
 export function registerEventoApi (event:EventoBody) {
-  return axiosInstanceWithAuth.post<{ id:number }>('/api-dashboard/events.php', event);
+  return axiosInstanceWithAuth.post<{ id:string }>('/api-dashboard/events.php', event);
 } 
 
 export function editEventoApi (event:EventoBodyWithId) {
@@ -17,7 +17,7 @@ export function editEventoApi (event:EventoBodyWithId) {
   return axiosInstanceWithAuth.put<null>(`/api-dashboard/events.php?id=${id}`, restEvent);
 }
 
-export function removeEventoApi (id:number) {
+export function removeEventoApi (id:string) {
   return axiosInstanceWithAuth.delete<null>(`/api-dashboard/events.php?id=${id}`);
 }
 

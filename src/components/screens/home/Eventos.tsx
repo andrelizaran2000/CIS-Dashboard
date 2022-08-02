@@ -40,7 +40,7 @@ import ModeEditIcon from '@mui/icons-material/ModeEdit';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 
 const initialState:EventoBodyWithId = {
-  id:0,
+  id:'0',
   title:'JS & TS',
   description:'Sit eu veniam occaecat enim culpa voluptate incididunt ea deserunt incididunt labore aliqua occaecat.',
   initDate:'',
@@ -50,7 +50,7 @@ const initialState:EventoBodyWithId = {
 }
 
 const initialStateBlank:EventoBodyWithId = {
-  id:0,
+  id:'0',
   title:'',
   description:'',
   initDate:'',
@@ -76,14 +76,9 @@ export default function Eventos() {
   const { toggleEditMode, showSnackMessage } = uiBindedActions;
 
   // Queries
-  const { getEventosQuery, registerEventoMutation, editEventoMutation } = useEventosQueries();
-  const { refetch:getEventos, isLoading:isGettingEventos } = getEventosQuery();
+  const { registerEventoMutation, editEventoMutation } = useEventosQueries();
   const { mutate:registerEvento, isLoading:isRegisteringEvento } = registerEventoMutation(cleanForm);
   const { mutate:editEvento, isLoading:isEditingEvento } = editEventoMutation(cleanForm);
-
-  useEffect(() => {
-    getEventos();
-  }, []);
 
   function validateForm () {
     const { description, endDate, flyer, initDate, title } = eventoFormValues;
@@ -176,12 +171,12 @@ export default function Eventos() {
           />
         </PaperFormContainer>
       </Grid>
-      <EventosList setFormValues={setFormValues} isLoading={isGettingEventos} isLoadingAction={isRegisteringEvento || isEditingEvento}/>
+      <EventosList setFormValues={setFormValues} isLoadingAction={isRegisteringEvento || isEditingEvento}/>
     </>
   )
 }
 
-function EventosList ({ setFormValues, isLoading, isLoadingAction }:any) {
+function EventosList ({ setFormValues, isLoadingAction }:any) {
 
   const { register, ui } = useSelectors();
   const { eventos } = register;
@@ -236,8 +231,7 @@ function EventosList ({ setFormValues, isLoading, isLoadingAction }:any) {
             )
           })}
         </Grid>
-        {(!eventos.length && !isLoading) && <Alert severity='warning'>No hay eventos registrados</Alert>}
-        {isLoading && <Alert severity='info'>Cargando eventos</Alert>}
+        {(!eventos.length) && <Alert severity='warning'>No hay eventos registrados</Alert>}
       </PaperContainer>
     </Grid>
   )

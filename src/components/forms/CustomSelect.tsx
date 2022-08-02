@@ -6,7 +6,7 @@ type Props = {
   label:string;
   inputName:string;
   value:string;
-  values?:{ value:number, label:string }[];
+  values?:{ value:string, label:string }[];
   inputNameValues?:string;
   handleSelect?: HandleSelect | undefined;
   handleSelectArray?: HandleSelectArray | undefined;

@@ -48,13 +48,15 @@ const initialStateBlank:SubeventoBody = {
   initHour:'07:30',
   initDate:'2022-01-01',
   endHour:'09:30',
+  endDate:'2022-01-01',
   flyer:'https://www.adictosaltrabajo.com/wp-content/uploads/2018/05/el_remozado_javascript.imagen.jpg',
   type:'1',
   eventId:'1',
-  eventLink:'',
-  formLink:'',
   expositorId:'1',
-  expositoresIds:[]
+  formEvent:'',
+  formSubevent:'',
+  expositoresIds:[],
+  speakers:[]
 }
 
 export default function Subeventos() {
@@ -75,7 +77,7 @@ export default function Subeventos() {
   const { isEditMode } = ui;
 
   // Queries
-  const { editSubeventoMutation, getSubeventosQuery, registerSubeventoMutation } = useSubeventosQueries();
+  const { editSubeventoMutation, registerSubeventoMutation, getSubeventosQuery } = useSubeventosQueries();
   const { mutate:editSubevento, isLoading:isEditingSubevento } = editSubeventoMutation(cleanForm);
   const { mutate:registerSubevento, isLoading:isRegisteringSubevento } = registerSubeventoMutation(cleanForm);
 
@@ -86,17 +88,16 @@ export default function Subeventos() {
   useEffect(() => {
     const options = register.eventos.map(({ id, title }) => ({ value:id, label:title }));
     setEventos(options);
-  }, []);
+  }, [register.eventos]);
 
   useEffect(() => {
     const options = register.expositores.map(({ id, firstName, lastName }) => ({ value:id, label:`${firstName} ${lastName}`}));
     setExpositores(options);
-  }, []);
+  }, [register.expositores]);
 
   function validateForm () {
-    console.log(subeventoFormValues)
-    const { name, description, initDate, initHour, endHour, flyer, eventLink, formLink } = subeventoFormValues;
-    if (name && description && initDate && flyer && initHour && endHour && eventLink && formLink) return true;
+    const { name, description, initDate, initHour, endHour, flyer, formEvent, formSubevent } = subeventoFormValues;
+    if (name && description && initDate && flyer && initHour && endHour && formEvent && formSubevent) return true;
     showSnackMessage('No has completado toda la información del formulario');
     return false;
   }
@@ -143,36 +144,6 @@ export default function Subeventos() {
             name='description'
             disabled={isEditingSubevento || isRegisteringSubevento}
           />
-          <CustomSelect
-            options={expositores}
-            label='Expositores participantes'
-            inputName='expositorId'
-            inputNameValues='expositoresIds'
-            value={subeventoFormValues.expositorId}
-            values={subeventoFormValues.expositoresIds}
-            handleSelectArray={handleSelectArray}
-          />
-          {(subeventoFormValues.expositoresIds.length > 0) && <ExpositoresList expositoresList={subeventoFormValues.expositoresIds}/>} 
-          <Grid container spacing={2}>
-            <Grid item xs={12} md={6}>
-              <CustomSelect
-                options={eventos}
-                label='Evento al que pertenece'
-                inputName='eventId'
-                value={subeventoFormValues.eventId}
-                handleSelect={handleSelect}
-              />
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <CustomSelect
-                options={subeventTypes}
-                label='Tipo de evento'
-                inputName='type'
-                value={subeventoFormValues.type}
-                handleSelect={handleSelect}
-              />
-            </Grid>
-          </Grid>
           <TextField
             value={subeventoFormValues.initDate}
             onChange={handleFormValues}
@@ -206,22 +177,52 @@ export default function Subeventos() {
               />           
             </Grid>
           </Grid>
+          <CustomSelect
+            options={expositores}
+            label='Expositores participantes'
+            inputName='expositorId'
+            inputNameValues='expositoresIds'
+            value={subeventoFormValues.expositorId}
+            values={subeventoFormValues.expositoresIds}
+            handleSelectArray={handleSelectArray}
+          />
+          {(subeventoFormValues.expositoresIds.length > 0) && <ExpositoresList expositoresList={subeventoFormValues.expositoresIds}/>} 
+          <Grid container spacing={2}>
+            <Grid item xs={12} md={6}>
+              <CustomSelect
+                options={eventos}
+                label='Evento al que pertenece'
+                inputName='eventId'
+                value={subeventoFormValues.eventId}
+                handleSelect={handleSelect}
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <CustomSelect
+                options={subeventTypes}
+                label='Tipo de evento'
+                inputName='type'
+                value={subeventoFormValues.type}
+                handleSelect={handleSelect}
+              />
+            </Grid>
+          </Grid>
           <TextField
-            label='Link de formulario'
+            label='Link de formulario de evento'
             type='text'
             autoComplete='off'
-            value={subeventoFormValues.formLink}
+            value={subeventoFormValues.formEvent}
             onChange={handleFormValues}
-            name='formLink'
+            name='formEvent'
             disabled={isEditingSubevento || isRegisteringSubevento}
           />
           <TextField
-            label='Link de evento'
+            label='Link de formulario de subevento'
             type='text'
             autoComplete='off'
-            value={subeventoFormValues.eventLink}
+            value={subeventoFormValues.formSubevent}
             onChange={handleFormValues}
-            name='eventLink'
+            name='formSubevent'
             disabled={isEditingSubevento || isRegisteringSubevento}
           />
           <CustomImageSelector 

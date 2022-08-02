@@ -24,14 +24,6 @@ import CustomImageSelector from '../../forms/CustomImageSelector';
 import PaperContainer from '../../../components/containers/PaperContainer';
 import PaperFormContainer from '../../../components/forms/PaperFormContainer';
 
-// Api
-import { 
-  editExpositorApi, 
-  getExpositoresApi, 
-  registerExpositorApi, 
-  removeExpositorApi 
-} from '../../../api/expositores';
-
 // Styles
 import { allWidth } from '../../../components/containers/ColorContainer';
 
@@ -46,7 +38,7 @@ import useBindActions from '../../../hooks/useBindActions';
 import useExpositoresQueries from '../../../queries/useExpositoresQueries';
 
 const initialState:ExpositorBodyWithId = {
-  id:0,
+  id:'0',
   firstName:'Andre',
   lastName:'Lizarán',
   description:'Adipisicing ex in ad deserunt cillum nostrud eiusmod.',
@@ -57,7 +49,7 @@ const initialState:ExpositorBodyWithId = {
 }
 
 const initialStateBlank:ExpositorBodyWithId = {
-  id:0,
+  id:'0',
   firstName:'',
   lastName:'',
   description:'',
@@ -84,14 +76,9 @@ export default function Expositores () {
   const { toggleEditMode, showSnackMessage } = uiBindedActions;
 
   // Queries
-  const { getExpositoresQuery, registerExpositorMutation, editExpositorMutation } = useExpositoresQueries();
-  const { refetch:getExpositores, isLoading:isGettingExpositores } = getExpositoresQuery();
+  const { registerExpositorMutation, editExpositorMutation } = useExpositoresQueries();
   const { mutate:registerExpositor, isLoading:isRegisteringExpositor } = registerExpositorMutation(cleanForm);
   const { mutate:editExpositor, isLoading:isEditingExpositor } = editExpositorMutation(cleanForm);
-  
-  useEffect(() => {
-    getExpositores();
-  }, []);
 
   function validateForm () {
     const { coverPhoto, description, firstName, lastName, profilePhoto, title } = expositorFormValues;
@@ -185,7 +172,6 @@ export default function Expositores () {
       </Grid>
       <ExpositoresList 
         setFormValues={setFormValues} 
-        isLoading={isGettingExpositores} 
         isLoadingAction={isRegisteringExpositor || isEditingExpositor}
       />
     </>
@@ -193,7 +179,7 @@ export default function Expositores () {
 }
 
 
-function ExpositoresList ({ setFormValues, isLoading, isLoadingAction }:any) {
+function ExpositoresList ({ setFormValues, isLoadingAction }:any) {
 
   const { register, ui } = useSelectors();
   const { expositores } = register;
@@ -234,7 +220,7 @@ function ExpositoresList ({ setFormValues, isLoading, isLoadingAction }:any) {
                   <CardActions disableSpacing sx={{ backgroundColor:grey[100] }}>
                     <IconButton onClick={() => editExpositor(expositor)} disabled={isLoadingAction || isRemovingExpositor}> 
                       <ModeEditIcon/>
-                    </IconButton>
+                    </IconButton>w
                     <IconButton onClick={() => mutate(id)} disabled={isLoadingAction || isRemovingExpositor}>
                       <DeleteIcon/>
                     </IconButton>
@@ -244,8 +230,8 @@ function ExpositoresList ({ setFormValues, isLoading, isLoadingAction }:any) {
             )
           })}
         </Grid>
-        {(!expositores.length && !isLoading) && <Alert severity='warning'>No hay expositores registrados</Alert>}
-        {isLoading && <Alert severity='info'>Cargando expositores</Alert>}
+        {(!expositores.length) && <Alert severity='warning'>No hay expositores registrados</Alert>}
+        <Alert severity='info'>Cargando expositores</Alert>
       </PaperContainer>
     </Grid>
   )

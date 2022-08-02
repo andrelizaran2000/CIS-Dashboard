@@ -14,10 +14,10 @@ export default function useSubeventosQueries() {
   const { showSnackMessage } = uiBindedActions;
 
   function getSubeventosQuery () {
-    return useQuery(['get-eventos'], getSubeventosApi, {
+    return useQuery(['get-subeventos'], getSubeventosApi, {
       onSuccess: ({ data }) => {
-        // const {  } = data;
-        // setSubeventos()
+        const { subevents } = data;
+        setSubeventos(subevents);
       },
       onError: () => {
         showSnackMessage('Error obteniendo subeventos');

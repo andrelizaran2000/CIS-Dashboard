@@ -9,7 +9,7 @@ export function getExpositoresApi () {
 }
 
 export function registerExpositorApi (data:ExpositorBody) {
-  return axiosInstanceWithAuth.post<{ id:number }>('/api-dashboard/speakers.php', data);
+  return axiosInstanceWithAuth.post<{ id:string }>('/api-dashboard/speakers.php', data);
 }
 
 export function editExpositorApi (expositor:ExpositorBodyWithId) {
@@ -17,6 +17,6 @@ export function editExpositorApi (expositor:ExpositorBodyWithId) {
   return axiosInstanceWithAuth.put<null>(`/api-dashboard/speakers.php?id=${id}`, restExpositor);
 }
 
-export function removeExpositorApi (id:number) {
+export function removeExpositorApi (id:string) {
   return axiosInstanceWithAuth.delete<null>(`/api-dashboard/speakers.php?id=${id}`);
 }
