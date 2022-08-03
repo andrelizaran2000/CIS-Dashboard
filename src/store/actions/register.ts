@@ -4,7 +4,7 @@ import { Dispatch } from 'react'
 // Types
 import { EventoBodyWithId } from '../../types/eventos';
 import { ExpositorBodyWithId } from '../../types/expositor';
-import { CleanSubEventBodyFromDBWithId, SubeventoBodyWithId } from '../../types/subeventos';
+import { SubEventBodyFromDBWithId } from '../../types/subeventos';
 import { PossibleRegisterActions, RegisterActions } from '../types/register';
 
 export function setExpositores (data:ExpositorBodyWithId[]) {
@@ -25,7 +25,7 @@ export function setEventos (data:EventoBodyWithId[]) {
   }
 }
 
-export function setSubeventos (data:CleanSubEventBodyFromDBWithId[]) {
+export function setSubeventos (data:SubEventBodyFromDBWithId[]) {
   return (dispatch:Dispatch<PossibleRegisterActions>) => {
     dispatch({
       type:RegisterActions.SET_SUBEVENTOS,

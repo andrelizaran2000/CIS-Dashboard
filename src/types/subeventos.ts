@@ -44,4 +44,6 @@ export type SubeventBodyFromDB = {
 
 export type SubEventBodyFromDBWithId = SubeventBodyFromDB & { id:string };
 
+export type SubeventoBodyToDbWithId = SubeventoBodyToDb & { id:string };
+
 export type SubeventoBodyWithId = SubeventoBody & { id:string };

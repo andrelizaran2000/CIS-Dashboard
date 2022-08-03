@@ -1,5 +1,5 @@
 // Types
-import { SubeventoBodyToDb, SubeventoBodyWithId, SubEventBodyFromDBWithId } from '../types/subeventos';
+import { SubeventoBodyToDb, SubEventBodyFromDBWithId, SubeventoBodyToDbWithId } from '../types/subeventos';
 
 // Axios
 import { axiosInstanceWithAuth } from '../utils/axiosInstances';
@@ -12,7 +12,7 @@ export function registerSubeventoApi (subevent:SubeventoBodyToDb) {
   return axiosInstanceWithAuth.post<{ id:string }>(`/api-dashboard/subevents.php?idEvent=${subevent.eventId}`, subevent);
 }
 
-export function editSubeventoApi (subevent:SubeventoBodyWithId) {
+export function editSubeventoApi (subevent:SubeventoBodyToDbWithId) {
   const { id, ...restSubevent } = subevent;
   return axiosInstanceWithAuth.put<null>(`/api-dashboard/subevents.php?id=${id}`, restSubevent);
 }

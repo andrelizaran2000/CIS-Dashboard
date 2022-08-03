@@ -96,7 +96,7 @@ export default function Subeventos() {
   const subeventoFormValues = formValues as SubeventoBodyWithId;
   const { uiBindedActions } = useBindActions();
   const { toggleEditMode, showSnackMessage } = uiBindedActions;
-  const { ui, register } = useSelectors();
+  const { ui } = useSelectors();
   const { isEditMode } = ui;
 
   // Queries
@@ -104,40 +104,30 @@ export default function Subeventos() {
   const { mutate:editSubevento, isLoading:isEditingSubevento } = editSubeventoMutation(cleanForm);
   const { mutate:registerSubevento, isLoading:isRegisteringSubevento } = registerSubeventoMutation(cleanForm);
 
-  // Eventos options
-  const [eventos, setEventos] = useState<{ value: string; label: string;}[]>([]);
-
-  useEffect(() => {
-    const options = register.eventos.map(({ id, title }) => ({ value:id, label:title }));
-    setEventos(options);
-  }, [register.eventos]);
-
   function validateForm () {
-    const { name, description, initDate, initHour, endHour, flyer, formEvent, formSubevent } = subeventoFormValues;
-    if (name && description && initDate && flyer && initHour && endHour && formEvent && formSubevent) return true;
+    const { name, description, initDate, initHour, endHour, flyer, formEvent, formSubevent, speakers } = subeventoFormValues;
+    if (name && description && initDate && flyer && initHour && endHour && formEvent && formSubevent && speakers.length > 0) return true;
     showSnackMessage('No has completado toda la información del formulario');
     return false;
   }
 
   function onSubmit () {
     if (!validateForm()) return;
-    if (isEditMode) editSubevento(subeventoFormValues); 
-    else {
-      const { name, description, initDate, initHour, endHour, flyer, type, formEvent, formSubevent, eventId, speakers } = subeventoFormValues;
-      const subeventoBodyToDb:SubeventoBodyToDb = {
-        type,
-        name,
-        description,
-        initDate: `${initDate} ${initHour}`,
-        endDate: `${initDate} ${endHour}`,
-        flyer,
-        formEvent,
-        formSubevent,
-        speakers,
-        eventId
-      }
-      registerSubevento(subeventoBodyToDb); 
+    const { name, description, initDate, initHour, endHour, flyer, type, formEvent, formSubevent, eventId, speakers, id } = subeventoFormValues;
+    const subeventoBodyToDb:SubeventoBodyToDb = {
+      type,
+      name,
+      description,
+      initDate: `${initDate} ${initHour}`,
+      endDate: `${initDate} ${endHour}`,
+      flyer,
+      formEvent,
+      formSubevent,
+      speakers,
+      eventId
     }
+    if (isEditMode) editSubevento({ ...subeventoBodyToDb, id }); 
+    else registerSubevento(subeventoBodyToDb); 
   }
 
   function cleanForm (isEditMode:boolean) {
@@ -297,7 +287,7 @@ function EventoDialog ({ isOpen, setIsOpen, setEvent, eventId }:any) {
       open={isOpen}
       onClose={() => setIsOpen(false)}
     >
-      <DialogTitle>Expositores que participarán en el subevento (selecciona uno o muchos)</DialogTitle>
+      <DialogTitle>Evento al que pertenece (selecciona uno)</DialogTitle>
         <DialogContent>
           <List>
             {eventos.map(({ id, title }, key) => (

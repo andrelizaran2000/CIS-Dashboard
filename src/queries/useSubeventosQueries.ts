@@ -5,8 +5,10 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { editSubeventoApi, getSubeventosApi, registerSubeventoApi, removeSubventoApi } from '../api/subevento';
 
 // Hooks
-import useBindActions from '../hooks/useBindActions';
 import useSelectors from '../hooks/useSelectors';
+import useBindActions from '../hooks/useBindActions';
+
+// Types
 import { SubEventBodyFromDBWithId } from '../types/subeventos';
 
 export default function useSubeventosQueries() {
@@ -21,8 +23,15 @@ export default function useSubeventosQueries() {
     return useQuery(['get-subeventos'], getSubeventosApi, {
       onSuccess: ({ data }) => {
         const { subevents } = data;
-        // @ts-ignore
-        const mapedSubevents = subevents.map(({ type, id, event, ...restSubevent }) => ({ ...restSubevent, type:type.id, id: String(id), event:String(event) }));
+        const mapedSubevents = subevents.map(({ type, id, event, speakers, ...restSubevent }) => ({ 
+          ...restSubevent, 
+          // @ts-ignore
+          type:type.id, 
+          id: String(id), 
+          event:String(event),
+          // @ts-ignore
+          speakers: speakers.map(({ id }) => (String(id))), 
+        }));
         setSubeventos(mapedSubevents);
       },
       onError: () => {
@@ -63,8 +72,29 @@ export default function useSubeventosQueries() {
   
   function editSubeventoMutation (afterSubmit: (isEditMode:boolean) => void) {
     return useMutation(editSubeventoApi, {
-      onSuccess: () => {
-        
+      onSuccess: (_, previousData) => {
+        const { description, endDate, eventId, flyer, formEvent, formSubevent, id, initDate, name, speakers, type  } = previousData;
+        const cleanSubeventFromDb:SubEventBodyFromDBWithId = {
+          description,
+          endDate,
+          event:eventId,
+          flyer,
+          formEvent,
+          formSubevent,
+          id,
+          initDate,
+          name,
+          platforms:[],
+          speakers,
+          type
+        }
+        const newEventos = subeventos.map(({ id, ...restEvento }) => {
+          if (id === previousData.id) return cleanSubeventFromDb;
+          return { id, ...restEvento };
+        })
+        setSubeventos(newEventos);
+        afterSubmit(true);
+        showSnackMessage('Ponente editado');
       },
       onError: () => {
         showSnackMessage('Error editando subevento');
