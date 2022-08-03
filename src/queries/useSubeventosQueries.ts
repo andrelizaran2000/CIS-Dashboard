@@ -26,7 +26,7 @@ export default function useSubeventosQueries() {
         const mapedSubevents = subevents.map(({ type, id, event, speakers, ...restSubevent }) => ({ 
           ...restSubevent, 
           // @ts-ignore
-          type:type.id, 
+          type:String(type.id), 
           id: String(id), 
           event:String(event),
           // @ts-ignore

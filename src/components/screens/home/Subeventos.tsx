@@ -1,10 +1,9 @@
 // Modules
 import { grey } from '@mui/material/colors';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { 
   Alert, 
   Avatar, 
-  Box, 
   Button, 
   Card, 
   CardActions, 
@@ -44,7 +43,7 @@ import useSubeventosQueries from '../../../queries/useSubeventosQueries';
 import { allWidth } from '../../containers/ColorContainer'
 
 // Types
-import { SubeventoBodyWithId, SubeventoBodyToDb, SubeventBodyFromDB, SubEventBodyFromDBWithId } from '../../../types/subeventos';
+import { SubeventoBodyWithId, SubeventoBodyToDb, SubEventBodyFromDBWithId } from '../../../types/subeventos';
 
 // Icons
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -67,22 +66,6 @@ const initialStateBlank:SubeventoBodyWithId = {
   speakers:[]
 }
 
-const initialState:SubeventoBodyWithId = {
-  id:'0',
-  name:'Aprende JS desde cero',
-  description:'Generic description',
-  initHour:'07:30',
-  initDate:'2022-01-01',
-  endHour:'09:30',
-  endDate:'',
-  flyer:'https://somospnt.com/images/blog/articulos/1A-Typescript/js-ts.png',
-  type:'1',
-  eventId:'1',
-  formEvent:'',
-  formSubevent:'',
-  speakers:[]
-}
-
 export default function Subeventos() {
 
   const { 
@@ -91,7 +74,7 @@ export default function Subeventos() {
     handleImageSelector, 
     setFormValues, 
     handleSelect,
-  } = useForm(initialState);
+  } = useForm(initialStateBlank);
   
   const subeventoFormValues = formValues as SubeventoBodyWithId;
   const { uiBindedActions } = useBindActions();
@@ -388,7 +371,7 @@ function SubeventosList ({ setFormValues, isLoadingAction }:any) {
       <PaperContainer title='Subeventos guardados'>
         <Grid container spacing={2}>
           {subeventos.map((subevento, index) => {
-            const { description, flyer, initDate, endDate, name, id } = subevento;
+            const { description, flyer, initDate, endDate, name, id, type } = subevento;
             return (
               <Grid item xs={12} md={6} lg={12} xl={6} key={index}>
                 <Card>
@@ -402,18 +385,19 @@ function SubeventosList ({ setFormValues, isLoadingAction }:any) {
                     image={flyer}
                   />
                   <CardContent sx={{ backgroundColor:grey[100] }}>
-                    <Typography 
-                      variant='subtitle1'
-                      color="text.secondary" 
-                      sx={{ fontSize: 14 }} 
-                    >Tipo de evento:</Typography>
+                    <Typography variant='subtitle1' color="text.secondary" sx={{ fontSize: 14 }}>
+                      Tipo de evento:
+                      {type === '1' ? ' Taller' : ''}
+                      {type === '2' ? ' Curso' : ''}
+                      {type === '3' ? ' Conferencia' : ''}
+                      {type === '4' ? ' Práctica' : ''}
+                    </Typography>
                     <Typography 
                       variant='subtitle1'
                       color="text.secondary" 
                       sx={{ fontSize: 14 }} 
                       mb={2}
                     >Descripción: {description}</Typography>
-
                     <Stack alignItems='start' rowGap={1} mb={2}>
                       <Chip icon={<CalendarTodayIcon fontSize='small'/>} sx={{ padding:1 }} label={`Fecha de inicio: ${initDate}`}/>
                       <Chip icon={<CalendarTodayIcon fontSize='small'/>} sx={{ padding:1 }} label={`Fecha de cierre: ${endDate}`}/>
