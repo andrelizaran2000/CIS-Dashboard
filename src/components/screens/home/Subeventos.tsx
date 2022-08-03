@@ -371,7 +371,7 @@ function SubeventosList ({ setFormValues, isLoadingAction }:any) {
       <PaperContainer title='Subeventos guardados'>
         <Grid container spacing={2}>
           {subeventos.map((subevento, index) => {
-            const { description, flyer, initDate, endDate, name, id, type, speakers } = subevento;
+            const { description, flyer, initDate, endDate, name, id, type, speakers, formEvent, formSubevent } = subevento;
             return (
               <Grid item xs={12} md={6} lg={12} xl={6} key={index}>
                 <Card>
@@ -398,16 +398,46 @@ function SubeventosList ({ setFormValues, isLoadingAction }:any) {
                       sx={{ fontSize: 14 }} 
                       mb={2}
                     >Descripción: {description}</Typography>
+
                     <Stack alignItems='start' rowGap={1} mb={2}>
                       <Chip icon={<CalendarTodayIcon fontSize='small'/>} sx={{ padding:1 }} label={`Fecha de inicio: ${initDate}`}/>
                       <Chip icon={<CalendarTodayIcon fontSize='small'/>} sx={{ padding:1 }} label={`Fecha de cierre: ${endDate}`}/>
                     </Stack>
+
                     <Typography 
                       variant='subtitle1'
                       color="text.secondary" 
                       sx={{ fontSize: 14 }} 
                     >Ponentes:</Typography>
+
                     <PonentesList speakers={speakers}/>
+
+                    <Stack>
+                      <Typography
+                        variant='subtitle1'
+                        color="text.secondary"
+                        sx={{ fontSize: 14 }}
+                      >Link de evento:</Typography>
+                      <Typography
+                        variant='subtitle1'
+                        color="text.secondary"
+                        sx={{ fontSize: 14 }}
+                      ><a href={formEvent}>{formEvent}</a></Typography>
+                    </Stack>
+
+                    <Stack>
+                      <Typography
+                        variant='subtitle1'
+                        color="text.secondary"
+                        sx={{ fontSize: 14 }}
+                      >Link de subevento:</Typography>
+                      <Typography
+                        variant='subtitle1'
+                        color="text.secondary"
+                        sx={{ fontSize: 14 }}
+                      ><a href={formEvent}>{formEvent}</a></Typography>
+                    </Stack>
+
                   </CardContent>
                   <CardActions disableSpacing sx={{ backgroundColor:grey[100] }}>
                     <IconButton onClick={() => editEvento(subevento)} disabled={isLoadingAction || isRemovingSubevento}> 
