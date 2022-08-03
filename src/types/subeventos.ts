@@ -1,3 +1,5 @@
+import { ExpositorBodyWithId } from "./expositor";
+
 export type SubeventoBody = {
   name:string;
   description:string;
@@ -13,19 +15,20 @@ export type SubeventoBody = {
   speakers:string[];
 }
 
-export type CleanSubEventBody = {
-  name:string;
-  description:string;
-  initDate:string;
-  endDate:string;
-  flyer:string;
-  type:string;
-  formEvent:string;
-  formSubevent:string;
-  speakers:string[];
+export type SubeventoBodyToDb = {
+  type: string;
+  name: string;
+  description: string;
+  initDate: string;
+  endDate: string;
+  formEvent: string;
+  formSubevent: string;
+  flyer: string;
+  speakers: string[];
+  eventId:string;
 }
 
-export type CleanSubEventBodyFromDB = {
+export type SubeventBodyFromDB = {
   name:string;
   description:string;
   initDate:string;
@@ -36,8 +39,9 @@ export type CleanSubEventBodyFromDB = {
   formSubevent:string;
   speakers:string[];
   event:string;
+  platforms:ExpositorBodyWithId[];
 }
 
-export type CleanSubEventBodyFromDBWithId = CleanSubEventBodyFromDB & { id:string };
+export type SubEventBodyFromDBWithId = SubeventBodyFromDB & { id:string };
 
 export type SubeventoBodyWithId = SubeventoBody & { id:string };

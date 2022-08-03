@@ -15,7 +15,6 @@ import {
   Chip, 
   Dialog, 
   DialogContent, 
-  DialogContentText, 
   DialogTitle, 
   Grid, 
   IconButton, 
@@ -45,14 +44,15 @@ import useSubeventosQueries from '../../../queries/useSubeventosQueries';
 import { allWidth } from '../../containers/ColorContainer'
 
 // Types
-import { CleanSubEventBodyFromDBWithId, SubeventoBody, SubeventoBodyWithId } from '../../../types/subeventos';
+import { SubeventoBodyWithId, SubeventoBodyToDb, SubeventBodyFromDB, SubEventBodyFromDBWithId } from '../../../types/subeventos';
 
 // Icons
 import DeleteIcon from '@mui/icons-material/Delete';
 import ModeEditIcon from '@mui/icons-material/ModeEdit';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 
-const initialStateBlank:SubeventoBody = {
+const initialStateBlank:SubeventoBodyWithId = {
+  id:'0',
   name:'',
   description:'',
   initHour:'07:30',
@@ -67,7 +67,8 @@ const initialStateBlank:SubeventoBody = {
   speakers:[]
 }
 
-const initialState:SubeventoBody = {
+const initialState:SubeventoBodyWithId = {
+  id:'0',
   name:'Aprende JS desde cero',
   description:'Generic description',
   initHour:'07:30',
@@ -122,8 +123,20 @@ export default function Subeventos() {
     if (!validateForm()) return;
     if (isEditMode) editSubevento(subeventoFormValues); 
     else {
-      const { id, ...restSubevento } = subeventoFormValues;
-      registerSubevento(restSubevento); 
+      const { name, description, initDate, initHour, endHour, flyer, type, formEvent, formSubevent, eventId, speakers } = subeventoFormValues;
+      const subeventoBodyToDb:SubeventoBodyToDb = {
+        type,
+        name,
+        description,
+        initDate: `${initDate} ${initHour}`,
+        endDate: `${initDate} ${endHour}`,
+        flyer,
+        formEvent,
+        formSubevent,
+        speakers,
+        eventId
+      }
+      registerSubevento(subeventoBodyToDb); 
     }
   }
 
@@ -138,6 +151,10 @@ export default function Subeventos() {
       setFormValues({ ...subeventoFormValues, speakers:newExpositores });
     }
     else setFormValues({ ...subeventoFormValues, speakers:[...subeventoFormValues.speakers, idSelected ]});
+  }
+
+  function setEvent (idEvento:string) {
+    setFormValues({ ...formValues, eventId:idEvento });
   }
 
   return (
@@ -203,28 +220,13 @@ export default function Subeventos() {
               />           
             </Grid>
           </Grid>
-
-          <Grid container spacing={2}>
-            <Grid item xs={12} md={6}>
-              <CustomSelect
-                options={eventos}
-                label='Evento al que pertenece'
-                inputName='eventId'
-                value={subeventoFormValues.eventId}
-                handleSelect={handleSelect}
-              />
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <CustomSelect
-                options={subeventTypes}
-                label='Tipo de evento'
-                inputName='type'
-                value={subeventoFormValues.type}
-                handleSelect={handleSelect}
-              />
-            </Grid>
-          </Grid>
-
+          <CustomSelect
+            options={subeventTypes}
+            label='Tipo de evento'
+            inputName='type'
+            value={subeventoFormValues.type}
+            handleSelect={handleSelect}
+          />
           <TextField
             label='Link de formulario de evento'
             type='text'
@@ -234,7 +236,6 @@ export default function Subeventos() {
             name='formEvent'
             disabled={isEditingSubevento || isRegisteringSubevento}
           />
-
           <TextField
             label='Link de formulario de subevento'
             type='text'
@@ -244,7 +245,6 @@ export default function Subeventos() {
             name='formSubevent'
             disabled={isEditingSubevento || isRegisteringSubevento}
           />
-
           <CustomImageSelector 
             label='Flyer de subevento' 
             inputName='flyer' 
@@ -252,9 +252,14 @@ export default function Subeventos() {
             value={subeventoFormValues.flyer}
             disabled={isEditingSubevento || isRegisteringSubevento}
           />
-
-          <ExpositoresSelector addExpositor={addExpositor} speakers={subeventoFormValues.speakers}/>
-
+          <ExpositoresSelector 
+            addExpositor={addExpositor} 
+            speakers={subeventoFormValues.speakers}
+          />
+          <EventoSelector 
+            setEvent={setEvent} 
+            eventId={subeventoFormValues.eventId}
+          />
         </PaperFormContainer>
       </Grid>
       <SubeventosList 
@@ -264,6 +269,50 @@ export default function Subeventos() {
     </>
   )
 }
+
+function EventoSelector ({ setEvent, eventId }:any) {
+  const [isOpen, setIsOpen] = useState(false);
+  return (
+    <>
+      <Stack flexDirection='row' alignItems='center' justifyContent='space-between'>
+        <Typography>Evento al que pertenece</Typography>
+        <Button variant='contained' onClick={() => setIsOpen(true)}>Seleccionar</Button>
+      </Stack>
+      <EventoDialog 
+        isOpen={isOpen} 
+        setIsOpen={setIsOpen} 
+        setEvent={setEvent}
+        eventId={eventId}
+      />
+    </>
+  )
+}
+
+function EventoDialog ({ isOpen, setIsOpen, setEvent, eventId }:any) {
+  const { register } = useSelectors();
+  const { eventos } = register;
+  return (
+    <Dialog
+      fullWidth={true}
+      open={isOpen}
+      onClose={() => setIsOpen(false)}
+    >
+      <DialogTitle>Expositores que participarán en el subevento (selecciona uno o muchos)</DialogTitle>
+        <DialogContent>
+          <List>
+            {eventos.map(({ id, title }, key) => (
+              <ListItem secondaryAction={<Checkbox edge="end" checked={eventId === id} onChange={() => setEvent(id)}/>} disablePadding key={key}>
+                <ListItemButton onClick={() => setEvent(id)}>
+                  <ListItemText primary={title}/>
+                </ListItemButton>
+              </ListItem>
+            ))}
+          </List>
+        </DialogContent>
+    </Dialog>
+  )
+}
+
 
 function ExpositoresSelector ({ addExpositor, speakers }:any) {
   const [isOpen, setIsOpen] = useState(false);
@@ -284,21 +333,19 @@ function ExpositoresSelector ({ addExpositor, speakers }:any) {
 }
 
 function ExpositoresDialog ({ isOpen, setIsOpen, addExpositor, speakers }:any) {
-
   const { register } = useSelectors();
   const { expositores } = register;
-
   return (
     <Dialog
       fullWidth={true}
       open={isOpen}
       onClose={() => setIsOpen(false)}
     >
-      <DialogTitle>Expositores que participarán en el subevento</DialogTitle>
+      <DialogTitle>Expositores que participarán en el subevento (selecciona uno o muchos)</DialogTitle>
         <DialogContent>
           <List>
             {expositores.map(({ firstName, lastName, profilePhoto, id }, key) => (
-              <ListItem secondaryAction={<Checkbox edge="end" checked={speakers.includes(id)}/>} disablePadding key={key}>
+              <ListItem secondaryAction={<Checkbox edge="end" checked={speakers.includes(id)} onChange={() => addExpositor(id)}/>} disablePadding key={key}>
                 <ListItemButton onClick={() => addExpositor(id)}>
                   <ListItemAvatar>
                     <Avatar src={profilePhoto}/>
@@ -321,7 +368,24 @@ function SubeventosList ({ setFormValues, isLoadingAction }:any) {
   const { uiBindedActions } = useBindActions();
   const { toggleEditMode } = uiBindedActions;
   
-  function editEvento (evento:CleanSubEventBodyFromDBWithId) {
+  function editEvento (evento:SubEventBodyFromDBWithId) {
+    const { description, endDate, event, flyer, formEvent, formSubevent, initDate, name, speakers, type, id } = evento;
+    const formValue:SubeventoBodyWithId = {
+      description,
+      endDate:'',
+      endHour:endDate.slice(11, 16),
+      eventId:event,
+      flyer,
+      formEvent,
+      formSubevent,
+      id,
+      initDate:initDate.slice(0, 10),
+      initHour:initDate.slice(11, 16),
+      name,
+      speakers,
+      type
+    }
+    setFormValues(formValue);
     !isEditMode && toggleEditMode();
     window.scrollTo({ top:0, behavior:'smooth' });
   }
@@ -371,7 +435,7 @@ function SubeventosList ({ setFormValues, isLoadingAction }:any) {
                     >Ponentes:</Typography>
                   </CardContent>
                   <CardActions disableSpacing sx={{ backgroundColor:grey[100] }}>
-                    <IconButton onClick={() => { editEvento(subevento)}} disabled={isLoadingAction || isRemovingSubevento}> 
+                    <IconButton onClick={() => editEvento(subevento)} disabled={isLoadingAction || isRemovingSubevento}> 
                       <ModeEditIcon/>
                     </IconButton>
                     <IconButton disabled={isLoadingAction || isRemovingSubevento} onClick={() => removeSubevento(id)}>

@@ -7,6 +7,7 @@ import { editSubeventoApi, getSubeventosApi, registerSubeventoApi, removeSubvent
 // Hooks
 import useBindActions from '../hooks/useBindActions';
 import useSelectors from '../hooks/useSelectors';
+import { SubEventBodyFromDBWithId } from '../types/subeventos';
 
 export default function useSubeventosQueries() {
 
@@ -16,12 +17,13 @@ export default function useSubeventosQueries() {
   const { register } = useSelectors();
   const { subeventos } = register;
 
-
   function getSubeventosQuery () {
     return useQuery(['get-subeventos'], getSubeventosApi, {
       onSuccess: ({ data }) => {
         const { subevents } = data;
-        setSubeventos(subevents);
+        // @ts-ignore
+        const mapedSubevents = subevents.map(({ type, id, event, ...restSubevent }) => ({ ...restSubevent, type:type.id, id: String(id), event:String(event) }));
+        setSubeventos(mapedSubevents);
       },
       onError: () => {
         showSnackMessage('Error obteniendo subeventos');
@@ -33,8 +35,22 @@ export default function useSubeventosQueries() {
   function registerSubeventoMutation (afterSubmit: (isEditMode:boolean) => void) {
     return useMutation(registerSubeventoApi, {
       onSuccess: ({ data }, previousData) => {
-        const { id } = data;
-        const newEventos = [ ...subeventos, {  ...previousData, id }];
+        const { description, endDate, eventId, flyer, formEvent, formSubevent, initDate, name, speakers, type } = previousData;
+        const cleanSubevent:SubEventBodyFromDBWithId = {
+          description,
+          endDate,
+          event:eventId,
+          flyer,
+          formEvent,
+          formSubevent,
+          id:data.id,
+          initDate,
+          name,
+          speakers,
+          type,
+          platforms:[]
+        }
+        const newEventos = [ ...subeventos, cleanSubevent];
         setSubeventos(newEventos);
         showSnackMessage('Nuevo subevento registrado');
 				afterSubmit(false);

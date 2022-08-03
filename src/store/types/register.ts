@@ -1,7 +1,7 @@
 // Types
 import { EventoBodyWithId } from '../../types/eventos';
 import { ExpositorBodyWithId } from '../../types/expositor'
-import { SubeventoBodyWithId } from '../../types/subeventos';
+import { CleanSubEventBodyFromDBWithId } from '../../types/subeventos';
 
 export enum RegisterActions  {
   SET_EXPOSITORES = "SET_EXPOSITORES",
@@ -12,7 +12,7 @@ export enum RegisterActions  {
 export type RegisterState = {
   expositores:ExpositorBodyWithId[];
   eventos:EventoBodyWithId[];
-  subeventos:SubeventoBodyWithId[];
+  subeventos:CleanSubEventBodyFromDBWithId[];
 }
 
 export type PossibleRegisterActions = SetExpositores | SetEventos | SetSubeventos;
@@ -29,5 +29,5 @@ export type SetEventos = {
 
 export type SetSubeventos = {
   type:RegisterActions.SET_SUBEVENTOS,
-  payload:SubeventoBodyWithId[];
+  payload:CleanSubEventBodyFromDBWithId[];
 }

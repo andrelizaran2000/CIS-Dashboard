@@ -1,21 +1,15 @@
 // Types
-import { CleanSubEventBody, SubeventoBody, SubeventoBodyWithId } from '../types/subeventos';
+import { SubeventoBodyToDb, SubeventoBodyWithId, SubEventBodyFromDBWithId } from '../types/subeventos';
 
 // Axios
 import { axiosInstanceWithAuth } from '../utils/axiosInstances';
 
 export function getSubeventosApi () {
-  return axiosInstanceWithAuth.get<{ subevents:SubeventoBodyWithId[] }>('/api-dashboard/subevents.php');
+  return axiosInstanceWithAuth.get<{ subevents:SubEventBodyFromDBWithId[] }>('/api-dashboard/subevents.php');
 }
 
-export function registerSubeventoApi (subevent:SubeventoBody) {
-  const { eventId, ...restSubevent } = subevent;
-  restSubevent.initDate = `${subevent.initDate} ${subevent.initHour}`;
-  restSubevent.endDate = `${subevent.initDate} ${subevent.endHour}`;
-  restSubevent.speakers = subevent.expositoresIds.map(({ value }) => (value));
-  const { expositoresIds, initHour, endHour, expositorId, ...restCleanSubeventBody } = restSubevent; 
-  const cleanSubEventBody:CleanSubEventBody = restCleanSubeventBody;
-  return axiosInstanceWithAuth.post<{ id:string }>(`/api-dashboard/subevents.php?idEvent=${eventId}`, cleanSubEventBody);
+export function registerSubeventoApi (subevent:SubeventoBodyToDb) {
+  return axiosInstanceWithAuth.post<{ id:string }>(`/api-dashboard/subevents.php?idEvent=${subevent.eventId}`, subevent);
 }
 
 export function editSubeventoApi (subevent:SubeventoBodyWithId) {
