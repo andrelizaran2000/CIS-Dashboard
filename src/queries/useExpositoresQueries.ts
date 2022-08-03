@@ -34,7 +34,7 @@ export default function useExpositoresQueries() {
 		return useMutation(registerExpositorApi, {
 			onSuccess: ({ data }, previousData) => {
 				const { id } = data;
-				const newExpositores = [ ...expositores, { ...previousData, id }];
+				const newExpositores = [ ...expositores, { ...previousData, id:String(id) }];
       	setExpositores(newExpositores);
       	showSnackMessage('Nuevo ponente registrado');
 				afterSubmit(false);

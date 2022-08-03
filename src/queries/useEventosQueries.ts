@@ -34,7 +34,7 @@ export default function useEventosQueries() {
     return useMutation(registerEventoApi, {
       onSuccess:({ data }, previousData) => {
         const { id } = data;
-        const newEventos = [ ...eventos, {  ...previousData, id }];
+        const newEventos = [ ...eventos, { ...previousData, id:String(id) }];
         setEventos(newEventos);
         showSnackMessage('Nuevo evento registrado');
 				afterSubmit(false);
