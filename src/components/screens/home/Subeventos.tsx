@@ -5,16 +5,24 @@ import {
   Alert, 
   Avatar, 
   Box, 
+  Button, 
   Card, 
   CardActions, 
   CardContent, 
   CardHeader, 
   CardMedia, 
+  Checkbox, 
   Chip, 
+  Dialog, 
+  DialogContent, 
+  DialogContentText, 
+  DialogTitle, 
   Grid, 
   IconButton, 
   List, 
   ListItem, 
+  ListItemAvatar, 
+  ListItemButton, 
   ListItemText, 
   Stack, 
   TextField, 
@@ -37,7 +45,7 @@ import useSubeventosQueries from '../../../queries/useSubeventosQueries';
 import { allWidth } from '../../containers/ColorContainer'
 
 // Types
-import { SubeventoBody, SubeventoBodyWithId } from '../../../types/subeventos';
+import { CleanSubEventBodyFromDBWithId, SubeventoBody, SubeventoBodyWithId } from '../../../types/subeventos';
 
 // Icons
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -50,14 +58,12 @@ const initialStateBlank:SubeventoBody = {
   initHour:'07:30',
   initDate:'2022-01-01',
   endHour:'09:30',
-  endDate:'2022-01-01',
+  endDate:'',
   flyer:'',
   type:'1',
   eventId:'1',
-  expositorId:'1',
   formEvent:'',
   formSubevent:'',
-  expositoresIds:[],
   speakers:[]
 }
 
@@ -67,14 +73,12 @@ const initialState:SubeventoBody = {
   initHour:'07:30',
   initDate:'2022-01-01',
   endHour:'09:30',
-  endDate:'2022-01-01',
+  endDate:'',
   flyer:'https://somospnt.com/images/blog/articulos/1A-Typescript/js-ts.png',
   type:'1',
   eventId:'1',
-  expositorId:'1',
   formEvent:'',
   formSubevent:'',
-  expositoresIds:[],
   speakers:[]
 }
 
@@ -86,7 +90,6 @@ export default function Subeventos() {
     handleImageSelector, 
     setFormValues, 
     handleSelect,
-    handleSelectArray 
   } = useForm(initialState);
   
   const subeventoFormValues = formValues as SubeventoBodyWithId;
@@ -100,20 +103,13 @@ export default function Subeventos() {
   const { mutate:editSubevento, isLoading:isEditingSubevento } = editSubeventoMutation(cleanForm);
   const { mutate:registerSubevento, isLoading:isRegisteringSubevento } = registerSubeventoMutation(cleanForm);
 
-
   // Eventos options
   const [eventos, setEventos] = useState<{ value: string; label: string;}[]>([]);
-  const [expositores, setExpositores] = useState<{ value: string; label: string;}[]>([]);
 
   useEffect(() => {
     const options = register.eventos.map(({ id, title }) => ({ value:id, label:title }));
     setEventos(options);
   }, [register.eventos]);
-
-  useEffect(() => {
-    const options = register.expositores.map(({ id, firstName, lastName }) => ({ value:id, label:`${firstName} ${lastName}`}));
-    setExpositores(options);
-  }, [register.expositores]);
 
   function validateForm () {
     const { name, description, initDate, initHour, endHour, flyer, formEvent, formSubevent } = subeventoFormValues;
@@ -134,6 +130,14 @@ export default function Subeventos() {
   function cleanForm (isEditMode:boolean) {
     setFormValues(initialStateBlank);
     isEditMode && toggleEditMode();
+  }
+
+  function addExpositor (idSelected:string) {
+    if (subeventoFormValues.speakers.includes(idSelected)) {
+      const newExpositores = subeventoFormValues.speakers.filter((id) => id !== idSelected );
+      setFormValues({ ...subeventoFormValues, speakers:newExpositores });
+    }
+    else setFormValues({ ...subeventoFormValues, speakers:[...subeventoFormValues.speakers, idSelected ]});
   }
 
   return (
@@ -199,16 +203,7 @@ export default function Subeventos() {
               />           
             </Grid>
           </Grid>
-          <CustomSelect
-            options={expositores}
-            label='Expositores participantes'
-            inputName='expositorId'
-            inputNameValues='expositoresIds'
-            value={subeventoFormValues.expositorId}
-            values={subeventoFormValues.expositoresIds}
-            handleSelectArray={handleSelectArray}
-          />
-          {(subeventoFormValues.expositoresIds.length > 0) && <ExpositoresList expositoresList={subeventoFormValues.expositoresIds}/>} 
+
           <Grid container spacing={2}>
             <Grid item xs={12} md={6}>
               <CustomSelect
@@ -229,6 +224,7 @@ export default function Subeventos() {
               />
             </Grid>
           </Grid>
+
           <TextField
             label='Link de formulario de evento'
             type='text'
@@ -238,6 +234,7 @@ export default function Subeventos() {
             name='formEvent'
             disabled={isEditingSubevento || isRegisteringSubevento}
           />
+
           <TextField
             label='Link de formulario de subevento'
             type='text'
@@ -247,6 +244,7 @@ export default function Subeventos() {
             name='formSubevent'
             disabled={isEditingSubevento || isRegisteringSubevento}
           />
+
           <CustomImageSelector 
             label='Flyer de subevento' 
             inputName='flyer' 
@@ -254,6 +252,9 @@ export default function Subeventos() {
             value={subeventoFormValues.flyer}
             disabled={isEditingSubevento || isRegisteringSubevento}
           />
+
+          <ExpositoresSelector addExpositor={addExpositor} speakers={subeventoFormValues.speakers}/>
+
         </PaperFormContainer>
       </Grid>
       <SubeventosList 
@@ -264,23 +265,51 @@ export default function Subeventos() {
   )
 }
 
-function ExpositoresList ({ expositoresList }:any) {
+function ExpositoresSelector ({ addExpositor, speakers }:any) {
+  const [isOpen, setIsOpen] = useState(false);
   return (
-    <Stack>
-      <Typography variant='subtitle1' pl={1}>Expositores escogidos</Typography>
-      <List>
-        {expositoresList.map(({ label }:any, key:any) => (
-          <ListItem 
-            key={key}
-            secondaryAction={<IconButton edge="end"><DeleteIcon /></IconButton>}
-          >
-            <ListItemText
-              secondary={label}
-            />
-          </ListItem>
-        ))}
-      </List>
-    </Stack>
+    <>
+      <Stack flexDirection='row' alignItems='center' justifyContent='space-between'>
+        <Typography>Expositores</Typography>
+        <Button variant='contained' onClick={() => setIsOpen(true)}>Seleccionar</Button>
+      </Stack>
+      <ExpositoresDialog 
+        isOpen={isOpen} 
+        setIsOpen={setIsOpen} 
+        addExpositor={addExpositor} 
+        speakers={speakers}
+      />
+    </>
+  )
+}
+
+function ExpositoresDialog ({ isOpen, setIsOpen, addExpositor, speakers }:any) {
+
+  const { register } = useSelectors();
+  const { expositores } = register;
+
+  return (
+    <Dialog
+      fullWidth={true}
+      open={isOpen}
+      onClose={() => setIsOpen(false)}
+    >
+      <DialogTitle>Expositores que participarán en el subevento</DialogTitle>
+        <DialogContent>
+          <List>
+            {expositores.map(({ firstName, lastName, profilePhoto, id }, key) => (
+              <ListItem secondaryAction={<Checkbox edge="end" checked={speakers.includes(id)}/>} disablePadding key={key}>
+                <ListItemButton onClick={() => addExpositor(id)}>
+                  <ListItemAvatar>
+                    <Avatar src={profilePhoto}/>
+                  </ListItemAvatar>
+                  <ListItemText primary={`${firstName} ${lastName}`}/>
+                </ListItemButton>
+              </ListItem>
+            ))}
+          </List>
+        </DialogContent>
+    </Dialog>
   )
 }
 
@@ -292,8 +321,7 @@ function SubeventosList ({ setFormValues, isLoadingAction }:any) {
   const { uiBindedActions } = useBindActions();
   const { toggleEditMode } = uiBindedActions;
   
-  function editEvento (evento:SubeventoBodyWithId) {
-    setFormValues(evento);
+  function editEvento (evento:CleanSubEventBodyFromDBWithId) {
     !isEditMode && toggleEditMode();
     window.scrollTo({ top:0, behavior:'smooth' });
   }
@@ -336,13 +364,11 @@ function SubeventosList ({ setFormValues, isLoadingAction }:any) {
                       <Chip icon={<CalendarTodayIcon fontSize='small'/>} sx={{ padding:1 }} label={`Fecha de inicio: ${initDate}`}/>
                       <Chip icon={<CalendarTodayIcon fontSize='small'/>} sx={{ padding:1 }} label={`Fecha de cierre: ${endDate}`}/>
                     </Stack>
-
                     <Typography 
                       variant='subtitle1'
                       color="text.secondary" 
                       sx={{ fontSize: 14 }} 
                     >Ponentes:</Typography>
-
                   </CardContent>
                   <CardActions disableSpacing sx={{ backgroundColor:grey[100] }}>
                     <IconButton onClick={() => { editEvento(subevento)}} disabled={isLoadingAction || isRemovingSubevento}> 
@@ -352,7 +378,6 @@ function SubeventosList ({ setFormValues, isLoadingAction }:any) {
                       <DeleteIcon/>
                     </IconButton>
                   </CardActions>
-
                 </Card>
               </Grid>
             )

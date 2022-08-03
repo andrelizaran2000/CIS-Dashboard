@@ -21,16 +21,6 @@ export default function useForm (initialState:any) {
     setFormValues({ ...formValues, [inputName]:value });
   }
 
-  function handleSelectArray (inputName:string, inputNameValues:string, selectedValueWithAllInformation:{ value:string, label:string }) {
-    const mappedExpositores:string[] = formValues[inputNameValues].map(({ value }:any) => (value));
-    if (!mappedExpositores.includes(selectedValueWithAllInformation.value)) 
-      setFormValues({ 
-        ...formValues, 
-        [inputNameValues]:[...formValues[inputNameValues], selectedValueWithAllInformation],
-        [inputName]:selectedValueWithAllInformation.value
-      });
-  }
-
   return {
     formValues,
     setFormValues, 
@@ -38,7 +28,6 @@ export default function useForm (initialState:any) {
     handleSwitch,
     handleImageSelector,
     handleSelect,
-    handleSelectArray
   }
 
 }
