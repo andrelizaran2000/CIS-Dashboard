@@ -15,10 +15,14 @@ export function registerSubeventoApi (subevent:SubeventoBody) {
   restSubevent.speakers = subevent.expositoresIds.map(({ value }) => (value));
   const { expositoresIds, initHour, endHour, expositorId, ...restCleanSubeventBody } = restSubevent; 
   const cleanSubEventBody:CleanSubEventBody = restCleanSubeventBody;
-  return axiosInstanceWithAuth.post<null>(`/api-dashboard/subevents.php?idEvent=${eventId}`, cleanSubEventBody);
+  return axiosInstanceWithAuth.post<{ id:string }>(`/api-dashboard/subevents.php?idEvent=${eventId}`, cleanSubEventBody);
 }
 
 export function editSubeventoApi (subevent:SubeventoBodyWithId) {
   const { id, ...restSubevent } = subevent;
   return axiosInstanceWithAuth.put<null>(`/api-dashboard/subevents.php?id=${id}`, restSubevent);
+}
+
+export function removeSubventoApi (id:string) {
+  return axiosInstanceWithAuth.delete<null>(`/api-dashboard/subevents.php?id=${id}`);
 }

@@ -215,12 +215,12 @@ function ExpositoresList ({ setFormValues, isLoadingAction }:any) {
                     image={coverPhoto}
                   />
                   <CardContent sx={{ backgroundColor:grey[100] }}>
-                    <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>{description}</Typography>
+                    <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>Descripción: {description}</Typography>
                   </CardContent>
                   <CardActions disableSpacing sx={{ backgroundColor:grey[100] }}>
                     <IconButton onClick={() => editExpositor(expositor)} disabled={isLoadingAction || isRemovingExpositor}> 
                       <ModeEditIcon/>
-                    </IconButton>w
+                    </IconButton>
                     <IconButton onClick={() => mutate(id)} disabled={isLoadingAction || isRemovingExpositor}>
                       <DeleteIcon/>
                     </IconButton>
@@ -231,7 +231,6 @@ function ExpositoresList ({ setFormValues, isLoadingAction }:any) {
           })}
         </Grid>
         {(!expositores.length) && <Alert severity='warning'>No hay expositores registrados</Alert>}
-        <Alert severity='info'>Cargando expositores</Alert>
       </PaperContainer>
     </Grid>
   )

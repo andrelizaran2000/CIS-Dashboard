@@ -5,8 +5,8 @@ import { useMutation, useQuery } from "@tanstack/react-query"
 import { editEventoApi, getEventosApi, registerEventoApi, removeEventoApi } from "../api/eventos"
 
 // Hooks
-import useBindActions from "../hooks/useBindActions";
 import useSelectors from "../hooks/useSelectors";
+import useBindActions from "../hooks/useBindActions";
 
 export default function useEventosQueries() {
 

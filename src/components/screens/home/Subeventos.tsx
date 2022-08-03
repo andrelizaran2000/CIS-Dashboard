@@ -10,6 +10,7 @@ import {
   CardContent, 
   CardHeader, 
   CardMedia, 
+  Chip, 
   Grid, 
   IconButton, 
   List, 
@@ -41,15 +42,33 @@ import { SubeventoBody, SubeventoBodyWithId } from '../../../types/subeventos';
 // Icons
 import DeleteIcon from '@mui/icons-material/Delete';
 import ModeEditIcon from '@mui/icons-material/ModeEdit';
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 
 const initialStateBlank:SubeventoBody = {
+  name:'',
+  description:'',
+  initHour:'07:30',
+  initDate:'2022-01-01',
+  endHour:'09:30',
+  endDate:'2022-01-01',
+  flyer:'',
+  type:'1',
+  eventId:'1',
+  expositorId:'1',
+  formEvent:'',
+  formSubevent:'',
+  expositoresIds:[],
+  speakers:[]
+}
+
+const initialState:SubeventoBody = {
   name:'Aprende JS desde cero',
   description:'Generic description',
   initHour:'07:30',
   initDate:'2022-01-01',
   endHour:'09:30',
   endDate:'2022-01-01',
-  flyer:'https://www.adictosaltrabajo.com/wp-content/uploads/2018/05/el_remozado_javascript.imagen.jpg',
+  flyer:'https://somospnt.com/images/blog/articulos/1A-Typescript/js-ts.png',
   type:'1',
   eventId:'1',
   expositorId:'1',
@@ -68,7 +87,7 @@ export default function Subeventos() {
     setFormValues, 
     handleSelect,
     handleSelectArray 
-  } = useForm(initialStateBlank);
+  } = useForm(initialState);
   
   const subeventoFormValues = formValues as SubeventoBodyWithId;
   const { uiBindedActions } = useBindActions();
@@ -77,9 +96,10 @@ export default function Subeventos() {
   const { isEditMode } = ui;
 
   // Queries
-  const { editSubeventoMutation, registerSubeventoMutation, getSubeventosQuery } = useSubeventosQueries();
+  const { editSubeventoMutation, registerSubeventoMutation } = useSubeventosQueries();
   const { mutate:editSubevento, isLoading:isEditingSubevento } = editSubeventoMutation(cleanForm);
   const { mutate:registerSubevento, isLoading:isRegisteringSubevento } = registerSubeventoMutation(cleanForm);
+
 
   // Eventos options
   const [eventos, setEventos] = useState<{ value: string; label: string;}[]>([]);
@@ -163,6 +183,7 @@ export default function Subeventos() {
                 inputProps={{ step: 300 }}
                 onChange={handleFormValues}
                 name='initHour'
+                disabled={isEditingSubevento || isRegisteringSubevento}
               />
             </Grid>
             <Grid item xs={12} md={6} sx={{ display:'flex', flexDirection:'column' }}>   
@@ -174,6 +195,7 @@ export default function Subeventos() {
                 inputProps={{ step: 300 }}
                 onChange={handleFormValues}
                 name='endHour'
+                disabled={isEditingSubevento || isRegisteringSubevento}
               />           
             </Grid>
           </Grid>
@@ -276,12 +298,15 @@ function SubeventosList ({ setFormValues, isLoadingAction }:any) {
     window.scrollTo({ top:0, behavior:'smooth' });
   }
 
+  const { removeSubeventoMutation } = useSubeventosQueries();
+  const { mutate:removeSubevento, isLoading:isRemovingSubevento } = removeSubeventoMutation();
+
   return (
     <Grid item xs={12} lg={6} sx={{ display:'flex', flexDirection:'column' }}>
       <PaperContainer title='Subeventos guardados'>
         <Grid container spacing={2}>
           {subeventos.map((subevento, index) => {
-            const { description, flyer, initDate, name } = subevento;
+            const { description, flyer, initDate, endDate, name, id } = subevento;
             return (
               <Grid item xs={12} md={6} lg={12} xl={6} key={index}>
                 <Card>
@@ -295,16 +320,39 @@ function SubeventosList ({ setFormValues, isLoadingAction }:any) {
                     image={flyer}
                   />
                   <CardContent sx={{ backgroundColor:grey[100] }}>
-                    <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>{description}</Typography>
+                    <Typography 
+                      variant='subtitle1'
+                      color="text.secondary" 
+                      sx={{ fontSize: 14 }} 
+                    >Tipo de evento:</Typography>
+                    <Typography 
+                      variant='subtitle1'
+                      color="text.secondary" 
+                      sx={{ fontSize: 14 }} 
+                      mb={2}
+                    >Descripción: {description}</Typography>
+
+                    <Stack alignItems='start' rowGap={1} mb={2}>
+                      <Chip icon={<CalendarTodayIcon fontSize='small'/>} sx={{ padding:1 }} label={`Fecha de inicio: ${initDate}`}/>
+                      <Chip icon={<CalendarTodayIcon fontSize='small'/>} sx={{ padding:1 }} label={`Fecha de cierre: ${endDate}`}/>
+                    </Stack>
+
+                    <Typography 
+                      variant='subtitle1'
+                      color="text.secondary" 
+                      sx={{ fontSize: 14 }} 
+                    >Ponentes:</Typography>
+
                   </CardContent>
                   <CardActions disableSpacing sx={{ backgroundColor:grey[100] }}>
-                    <IconButton onClick={() => { editEvento(subevento)}} disabled={isLoadingAction}> 
+                    <IconButton onClick={() => { editEvento(subevento)}} disabled={isLoadingAction || isRemovingSubevento}> 
                       <ModeEditIcon/>
                     </IconButton>
-                    <IconButton disabled={isLoadingAction}>
+                    <IconButton disabled={isLoadingAction || isRemovingSubevento} onClick={() => removeSubevento(id)}>
                       <DeleteIcon/>
                     </IconButton>
                   </CardActions>
+
                 </Card>
               </Grid>
             )

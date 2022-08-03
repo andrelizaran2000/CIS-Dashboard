@@ -212,7 +212,7 @@ function EventosList ({ setFormValues, isLoadingAction }:any) {
                     image={flyer}
                   />
                   <CardContent sx={{ backgroundColor:grey[100] }}>
-                    <Typography sx={{ fontSize: 14 }} color="text.secondary" mb={2}>{description}</Typography>
+                    <Typography sx={{ fontSize: 14 }} color="text.secondary" mb={2}>Descripción: {description}</Typography>
                     <Stack alignItems='start' rowGap={1}>
                       <Chip icon={<CalendarTodayIcon fontSize='small'/>} sx={{ padding:1 }} label={`Fecha de inicio: ${initDate}`}/>
                       <Chip icon={<CalendarTodayIcon fontSize='small'/>} sx={{ padding:1 }} label={`Fecha de cierre: ${endDate}`}/>
