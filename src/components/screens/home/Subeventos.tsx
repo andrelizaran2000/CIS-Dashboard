@@ -1,6 +1,6 @@
 // Modules
 import { grey } from '@mui/material/colors';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { 
   Alert, 
   Avatar, 
@@ -43,6 +43,7 @@ import useSubeventosQueries from '../../../queries/useSubeventosQueries';
 import { allWidth } from '../../containers/ColorContainer'
 
 // Types
+import { ExpositorBodyWithId } from '../../../types/expositor';
 import { SubeventoBodyWithId, SubeventoBodyToDb, SubEventBodyFromDBWithId } from '../../../types/subeventos';
 
 // Icons
@@ -286,7 +287,6 @@ function EventoDialog ({ isOpen, setIsOpen, setEvent, eventId }:any) {
   )
 }
 
-
 function ExpositoresSelector ({ addExpositor, speakers }:any) {
   const [isOpen, setIsOpen] = useState(false);
   return (
@@ -371,7 +371,7 @@ function SubeventosList ({ setFormValues, isLoadingAction }:any) {
       <PaperContainer title='Subeventos guardados'>
         <Grid container spacing={2}>
           {subeventos.map((subevento, index) => {
-            const { description, flyer, initDate, endDate, name, id, type } = subevento;
+            const { description, flyer, initDate, endDate, name, id, type, speakers } = subevento;
             return (
               <Grid item xs={12} md={6} lg={12} xl={6} key={index}>
                 <Card>
@@ -407,6 +407,7 @@ function SubeventosList ({ setFormValues, isLoadingAction }:any) {
                       color="text.secondary" 
                       sx={{ fontSize: 14 }} 
                     >Ponentes:</Typography>
+                    <PonentesList speakers={speakers}/>
                   </CardContent>
                   <CardActions disableSpacing sx={{ backgroundColor:grey[100] }}>
                     <IconButton onClick={() => editEvento(subevento)} disabled={isLoadingAction || isRemovingSubevento}> 
@@ -424,6 +425,34 @@ function SubeventosList ({ setFormValues, isLoadingAction }:any) {
         {!subeventos.length && <Alert severity='warning'>No hay subeventos registrados</Alert>}
       </PaperContainer>
     </Grid>
+  )
+}
+
+type PonentesListProps = {
+  speakers:string[];
+}
+
+function PonentesList ({ speakers }:PonentesListProps) {
+
+  const { register } = useSelectors();
+  const [speakersWithData, setSpeakersWithData] = useState<ExpositorBodyWithId[]>([]);
+
+  useEffect(() => {
+    const newExpositores = register.expositores.filter(({ id }) => speakers.includes(String(id)));
+    setSpeakersWithData(newExpositores)
+  }, [speakers])
+
+  return (
+    <List>
+      {speakersWithData.map(({ firstName, lastName, profilePhoto }) => (
+        <ListItem>
+          <ListItemAvatar>
+            <Avatar src={profilePhoto}/>
+          </ListItemAvatar>
+          <ListItemText secondary={`${firstName} ${lastName}`}/>
+        </ListItem>
+      ))}
+    </List>
   )
 }
 

@@ -20,7 +20,8 @@ export default function useExpositoresQueries() {
 		return useQuery(['get-expositores'], getExpositoresApi, {
 			onSuccess: ({ data }) => {
 				const { speakers } = data;
-				setExpositores(speakers);
+				const newSpeakers = speakers.map(({ id, ...restSpeaker }) => ({ ...restSpeaker, id:String(id) }));
+				setExpositores(newSpeakers);
 			},
 			onError: () => {
 				showSnackMessage('Error obteniendo ponente');

@@ -20,7 +20,8 @@ export default function useEventosQueries() {
     return useQuery(['get-eventos'], getEventosApi, {
       onSuccess: ({ data }) => {
         const { events } = data;
-        setEventos(events);
+        const newEvents = events.map(({ id, ...restEvent }) => ({ ...restEvent, id:String(id) }));
+        setEventos(newEvents);
       },
       onError: () => {
         showSnackMessage('Error obteniendo ponente');
