@@ -62,9 +62,10 @@ const initialStateBlank:SubeventoBodyWithId = {
   flyer:'',
   type:'1',
   eventId:'1',
-  formEvent:'',
-  formSubevent:'',
-  speakers:[]
+  platformId:'1',
+  platformLink:'',
+  speakers:[],
+  hasRegistration:true
 }
 
 export default function Subeventos() {
@@ -89,15 +90,31 @@ export default function Subeventos() {
   const { mutate:registerSubevento, isLoading:isRegisteringSubevento } = registerSubeventoMutation(cleanForm);
 
   function validateForm () {
-    const { name, description, initDate, initHour, endHour, flyer, formEvent, formSubevent, speakers } = subeventoFormValues;
-    if (name && description && initDate && flyer && initHour && endHour && formEvent && formSubevent && speakers.length > 0) return true;
+    const { name, description, initDate, initHour, endHour, flyer, platformLink, speakers } = subeventoFormValues;
+    if (name && description && initDate && flyer && initHour && endHour && platformLink && speakers.length > 0) return true;
     showSnackMessage('No has completado toda la información del formulario');
     return false;
   }
 
   function onSubmit () {
     if (!validateForm()) return;
-    const { name, description, initDate, initHour, endHour, flyer, type, formEvent, formSubevent, eventId, speakers, id } = subeventoFormValues;
+
+    const { 
+      name, 
+      description, 
+      initDate, 
+      initHour, 
+      endHour, 
+      flyer, 
+      type, 
+      platformId, 
+      platformLink, 
+      eventId, 
+      speakers, 
+      id, 
+      hasRegistration 
+    } = subeventoFormValues;
+
     const subeventoBodyToDb:SubeventoBodyToDb = {
       type,
       name,
@@ -105,10 +122,12 @@ export default function Subeventos() {
       initDate: `${initDate} ${initHour}`,
       endDate: `${initDate} ${endHour}`,
       flyer,
-      formEvent,
-      formSubevent,
+      platforms: [
+        { id:platformId, link:platformLink }
+      ],
       speakers,
-      eventId
+      eventId,
+      hasRegistration
     }
     if (isEditMode) editSubevento({ ...subeventoBodyToDb, id }); 
     else registerSubevento(subeventoBodyToDb); 
@@ -150,6 +169,7 @@ export default function Subeventos() {
             name='name'
             disabled={isEditingSubevento || isRegisteringSubevento}
           />
+
           <TextField
             label='Descripción del subevento'
             type='text'
@@ -159,6 +179,7 @@ export default function Subeventos() {
             name='description'
             disabled={isEditingSubevento || isRegisteringSubevento}
           />
+
           <TextField
             value={subeventoFormValues.initDate}
             onChange={handleFormValues}
@@ -168,6 +189,7 @@ export default function Subeventos() {
             InputLabelProps={{ shrink: true }}
             disabled={isEditingSubevento || isRegisteringSubevento}
           />
+
           <Grid container spacing={2}>
             <Grid item xs={12} md={6} sx={{ display:'flex', flexDirection:'column' }}>
               <TextField
@@ -194,31 +216,35 @@ export default function Subeventos() {
               />           
             </Grid>
           </Grid>
+
           <CustomSelect
             options={subeventTypes}
             label='Tipo de evento'
             inputName='type'
             value={subeventoFormValues.type}
             handleSelect={handleSelect}
-          />
-          <TextField
-            label='Link de formulario de evento'
-            type='text'
-            autoComplete='off'
-            value={subeventoFormValues.formEvent}
-            onChange={handleFormValues}
-            name='formEvent'
             disabled={isEditingSubevento || isRegisteringSubevento}
           />
+
           <TextField
-            label='Link de formulario de subevento'
+            label='Link de plataforma'
             type='text'
             autoComplete='off'
-            value={subeventoFormValues.formSubevent}
+            value={subeventoFormValues.platformLink}
             onChange={handleFormValues}
-            name='formSubevent'
+            name='platformLink'
             disabled={isEditingSubevento || isRegisteringSubevento}
           />
+          
+          <CustomSelect
+            options={platformOptions}
+            label='Plataforma'
+            inputName='platformId'
+            value={subeventoFormValues.platformId}
+            handleSelect={handleSelect}
+            disabled={isEditingSubevento || isRegisteringSubevento}
+          />
+
           <CustomImageSelector 
             label='Flyer de subevento' 
             inputName='flyer' 
@@ -342,22 +368,38 @@ function SubeventosList ({ setFormValues, isLoadingAction }:any) {
   const { toggleEditMode } = uiBindedActions;
   
   function editEvento (evento:SubEventBodyFromDBWithId) {
-    const { description, endDate, event, flyer, formEvent, formSubevent, initDate, name, speakers, type, id } = evento;
+
+    const { 
+      description, 
+      endDate, 
+      event, 
+      flyer, 
+      platforms, 
+      initDate, 
+      name, 
+      speakers, 
+      type, 
+      id,
+      hasRegistration
+    } = evento;
+
     const formValue:SubeventoBodyWithId = {
       description,
       endDate:'',
       endHour:endDate.slice(11, 16),
       eventId:event,
       flyer,
-      formEvent,
-      formSubevent,
+      platformId: platforms[0].id,
+      platformLink: platforms[0].link,
       id,
       initDate:initDate.slice(0, 10),
       initHour:initDate.slice(11, 16),
       name,
       speakers,
-      type
+      type,
+      hasRegistration
     }
+
     setFormValues(formValue);
     !isEditMode && toggleEditMode();
     window.scrollTo({ top:0, behavior:'smooth' });
@@ -371,7 +413,7 @@ function SubeventosList ({ setFormValues, isLoadingAction }:any) {
       <PaperContainer title='Subeventos guardados'>
         <Grid container spacing={2}>
           {subeventos.map((subevento, index) => {
-            const { description, flyer, initDate, endDate, name, id, type, speakers, formEvent, formSubevent } = subevento;
+            const { description, flyer, initDate, endDate, name, id, type, speakers, platforms } = subevento;
             return (
               <Grid item xs={12} md={6} lg={12} xl={6} key={index}>
                 <Card>
@@ -412,17 +454,17 @@ function SubeventosList ({ setFormValues, isLoadingAction }:any) {
 
                     <PonentesList speakers={speakers}/>
 
-                    <Stack>
+                    <Stack sx={{ mb:2 }}>
                       <Typography
                         variant='subtitle1'
                         color="text.secondary"
                         sx={{ fontSize: 14 }}
-                      >Link de evento:</Typography>
+                      >Link de plataforma:</Typography>
                       <Typography
                         variant='subtitle1'
                         color="text.secondary"
                         sx={{ fontSize: 14 }}
-                      ><a href={formEvent}>{formEvent}</a></Typography>
+                      ><a href={platforms[0].link}>{platforms[0].link}</a></Typography>
                     </Stack>
 
                     <Stack>
@@ -430,12 +472,11 @@ function SubeventosList ({ setFormValues, isLoadingAction }:any) {
                         variant='subtitle1'
                         color="text.secondary"
                         sx={{ fontSize: 14 }}
-                      >Link de subevento:</Typography>
-                      <Typography
-                        variant='subtitle1'
-                        color="text.secondary"
-                        sx={{ fontSize: 14 }}
-                      ><a href={formEvent}>{formEvent}</a></Typography>
+                      >
+                        Plataforma:
+                        {platforms[0].id == '1' && ' Facebook'}
+                        {platforms[0].id == '2' && ' Youtube'}
+                      </Typography>
                     </Stack>
 
                   </CardContent>
@@ -491,4 +532,10 @@ const subeventTypes = [
   { label:'Curso', value:'2' },
   { label:'Conferencia', value:'3' },
   { label:'Práctica', value:'4' },
+];
+
+const platformOptions = [
+  { label:'Facebook', value:'1' },
+  { label:'Youtube', value:'2' },
 ]
+

@@ -45,8 +45,9 @@ const initialState:EventoBodyWithId = {
   description:'Sit eu veniam occaecat enim culpa voluptate incididunt ea deserunt incididunt labore aliqua occaecat.',
   initDate:'',
   endDate:'',
-  flyer:'https://firebasestorage.googleapis.com/v0/b/cis-frontend-81086.appspot.com/o/1_9XMpTyccrky0eW5Wz6DoWQ.png?alt=media&token=bd82a2bd-4291-40c2-8aca-e614bc27794f',
-  register:true
+  flyer1:'https://firebasestorage.googleapis.com/v0/b/cis-frontend-81086.appspot.com/o/1_9XMpTyccrky0eW5Wz6DoWQ.png?alt=media&token=bd82a2bd-4291-40c2-8aca-e614bc27794f',
+  flyer2:'https://firebasestorage.googleapis.com/v0/b/cis-frontend-81086.appspot.com/o/1_9XMpTyccrky0eW5Wz6DoWQ.png?alt=media&token=bd82a2bd-4291-40c2-8aca-e614bc27794f',
+  hasRegistration:true
 }
 
 const initialStateBlank:EventoBodyWithId = {
@@ -55,8 +56,9 @@ const initialStateBlank:EventoBodyWithId = {
   description:'',
   initDate:'',
   endDate:'',
-  flyer:'',
-  register:true
+  flyer1:'',
+  flyer2:'',
+  hasRegistration:true
 }
 
 export default function Eventos() {
@@ -81,8 +83,8 @@ export default function Eventos() {
   const { mutate:editEvento, isLoading:isEditingEvento } = editEventoMutation(cleanForm);
 
   function validateForm () {
-    const { description, endDate, flyer, initDate, title } = eventoFormValues;
-    if (description && endDate && flyer && initDate && title) return true;
+    const { description, endDate, flyer1, initDate, title } = eventoFormValues;
+    if (description && endDate && flyer1 && initDate && title) return true;
     showSnackMessage('No has completado toda la información del formulario');
     return false;
   }
@@ -157,16 +159,16 @@ export default function Eventos() {
           </Grid>
           <CustomImageSelector 
             label='Flyer de evento' 
-            inputName='flyer' 
+            inputName='flyer1' 
             handleImageSelector={handleImageSelector}
-            value={eventoFormValues.flyer}
+            value={eventoFormValues.flyer1}
             disabled={isRegisteringEvento || isEditingEvento}
           />
           <CustomSwitch
             handleSwitch={handleSwitch}
-            inputName='register'
+            inputName='hasRegistration'
             label='Registro disponible'
-            value={eventoFormValues.register}
+            value={eventoFormValues.hasRegistration}
             disabled={isRegisteringEvento || isEditingEvento}
           />
         </PaperFormContainer>
@@ -197,7 +199,7 @@ function EventosList ({ setFormValues, isLoadingAction }:any) {
       <PaperContainer title='Eventos guardados'>
         <Grid container spacing={2}>
           {eventos.map((evento, index) => {
-            const { description, endDate, flyer, initDate, title, id } = evento;
+            const { description, endDate, flyer1, initDate, title, id } = evento;
             return (
               <Grid item xs={12} md={6} lg={12} xl={6} key={index}>
                 <Card>
@@ -209,7 +211,7 @@ function EventosList ({ setFormValues, isLoadingAction }:any) {
                   <CardMedia
                     component="img"
                     height="120"
-                    image={flyer}
+                    image={flyer1}
                   />
                   <CardContent sx={{ backgroundColor:grey[100] }}>
                     <Typography sx={{ fontSize: 14 }} color="text.secondary" mb={2}>Descripción: {description}</Typography>
@@ -236,3 +238,4 @@ function EventosList ({ setFormValues, isLoadingAction }:any) {
     </Grid>
   )
 }
+

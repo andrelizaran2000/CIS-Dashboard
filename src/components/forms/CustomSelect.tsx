@@ -10,13 +10,14 @@ type Props = {
   inputNameValues?:string;
   handleSelect?: HandleSelect | undefined;
   handleSelectArray?: HandleSelectArray | undefined;
+  disabled:boolean;
 }
 
 type HandleSelect = (inputName:string, value:string) => void;
 
 type HandleSelectArray = (inputName:string, inputNameValues:string, selectedValueWithAllInformation:{ value:string, label:string }) => void;
 
-export default function CustomSelect ({ label, options, inputName, inputNameValues = '', value, handleSelect, handleSelectArray}:Props) {
+export default function CustomSelect ({ label, options, inputName, inputNameValues = '', value, handleSelect, handleSelectArray, disabled }:Props) {
 
   function handleSelectFunctions (e:SelectChangeEvent<string>) {
     const selectedValue = e.target.value;
@@ -34,9 +35,11 @@ export default function CustomSelect ({ label, options, inputName, inputNameValu
         value={value} 
         name={inputName} 
         onChange={handleSelectFunctions}
+        disabled={disabled}
       >
         {options.map(({ label, value }, index) => <MenuItem value={value} key={index}>{label}</MenuItem>)}
       </Select>
     </FormControl>
   )
 }
+

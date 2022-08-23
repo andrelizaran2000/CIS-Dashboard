@@ -44,21 +44,34 @@ export default function useSubeventosQueries() {
   function registerSubeventoMutation (afterSubmit: (isEditMode:boolean) => void) {
     return useMutation(registerSubeventoApi, {
       onSuccess: ({ data }, previousData) => {
-        const { description, endDate, eventId, flyer, formEvent, formSubevent, initDate, name, speakers, type } = previousData;
+
+        const { 
+          description, 
+          endDate, 
+          eventId, 
+          flyer, 
+          platforms, 
+          initDate, 
+          name, 
+          speakers, 
+          type ,
+          hasRegistration
+        } = previousData;
+
         const cleanSubevent:SubEventBodyFromDBWithId = {
           description,
           endDate,
           event:eventId,
           flyer,
-          formEvent,
-          formSubevent,
+          platforms,
           id:data.id,
           initDate,
           name,
           speakers,
           type,
-          platforms:[]
+          hasRegistration
         }
+
         const newEventos = [ ...subeventos, cleanSubevent];
         setSubeventos(newEventos);
         showSnackMessage('Nuevo subevento registrado');
@@ -73,20 +86,33 @@ export default function useSubeventosQueries() {
   function editSubeventoMutation (afterSubmit: (isEditMode:boolean) => void) {
     return useMutation(editSubeventoApi, {
       onSuccess: (_, previousData) => {
-        const { description, endDate, eventId, flyer, formEvent, formSubevent, id, initDate, name, speakers, type  } = previousData;
+
+        const { 
+          description, 
+          endDate, 
+          eventId, 
+          flyer, 
+          platforms, 
+          id, 
+          initDate, 
+          name, 
+          speakers, 
+          type,
+          hasRegistration 
+        } = previousData;
+
         const cleanSubeventFromDb:SubEventBodyFromDBWithId = {
           description,
           endDate,
           event:eventId,
           flyer,
-          formEvent,
-          formSubevent,
+          platforms,
           id,
           initDate,
           name,
-          platforms:[],
           speakers,
-          type
+          type,
+          hasRegistration
         }
         const newEventos = subeventos.map(({ id, ...restEvento }) => {
           if (id === previousData.id) return cleanSubeventFromDb;

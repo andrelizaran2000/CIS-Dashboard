@@ -16,9 +16,9 @@ export default function Router() {
         <Route 
           path="/home"     
           element={
-            <PrivateRoute>
+            // <PrivateRoute>
               <Home/>
-            </PrivateRoute>
+            // </PrivateRoute>
           }
         />
         <Route 

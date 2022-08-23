@@ -9,10 +9,11 @@ export type SubeventoBody = {
   endDate:string;
   flyer:string;
   type:string;
-  formEvent:string;
-  formSubevent:string;
+  platformLink:string;
+  platformId:string;
   eventId:string;
   speakers:string[];
+  hasRegistration:boolean;
 }
 
 export type SubeventoBodyToDb = {
@@ -21,11 +22,11 @@ export type SubeventoBodyToDb = {
   description: string;
   initDate: string;
   endDate: string;
-  formEvent: string;
-  formSubevent: string;
+  platforms: { id:string, link:string }[];
   flyer: string;
   speakers: string[];
   eventId:string;
+  hasRegistration:boolean;
 }
 
 export type SubeventBodyFromDB = {
@@ -35,11 +36,10 @@ export type SubeventBodyFromDB = {
   endDate:string;
   flyer:string;
   type:string;
-  formEvent:string;
-  formSubevent:string;
+  platforms: { id:string, link:string }[];
   speakers:string[];
   event:string;
-  platforms:ExpositorBodyWithId[];
+  hasRegistration:boolean;
 }
 
 export type SubEventBodyFromDBWithId = SubeventBodyFromDB & { id:string };

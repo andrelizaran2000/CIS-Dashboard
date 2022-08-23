@@ -3,8 +3,9 @@ export type EventoBody = {
   description:string;
   initDate:string;
   endDate:string;
-  flyer:any;
-  register:boolean;
+  flyer1:string;
+  flyer2:string;
+  hasRegistration:boolean;
 }
 
 export type EventoBodyWithId = EventoBody & { id:string };
