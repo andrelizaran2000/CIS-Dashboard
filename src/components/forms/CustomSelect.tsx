@@ -10,7 +10,7 @@ type Props = {
   inputNameValues?:string;
   handleSelect?: HandleSelect | undefined;
   handleSelectArray?: HandleSelectArray | undefined;
-  disabled:boolean;
+  disabled?:boolean;
 }
 
 type HandleSelect = (inputName:string, value:string) => void;

@@ -64,6 +64,7 @@ const initialStateBlank:SubeventoBodyWithId = {
   eventId:'1',
   platformId:'1',
   platformLink:'',
+  platforms: [],
   speakers:[],
   hasRegistration:true
 }
@@ -90,8 +91,8 @@ export default function Subeventos() {
   const { mutate:registerSubevento, isLoading:isRegisteringSubevento } = registerSubeventoMutation(cleanForm);
 
   function validateForm () {
-    const { name, description, initDate, initHour, endHour, flyer, platformLink, speakers } = subeventoFormValues;
-    if (name && description && initDate && flyer && initHour && endHour && platformLink && speakers.length > 0) return true;
+    const { name, description, initDate, initHour, endHour, flyer, speakers, platforms } = subeventoFormValues;
+    if (name && description && initDate && flyer && initHour && endHour && speakers.length > 0 && platforms.length > 0) return true;
     showSnackMessage('No has completado toda la información del formulario');
     return false;
   }
@@ -107,12 +108,11 @@ export default function Subeventos() {
       endHour, 
       flyer, 
       type, 
-      platformId, 
-      platformLink, 
       eventId, 
       speakers, 
       id, 
-      hasRegistration 
+      hasRegistration,
+      platforms 
     } = subeventoFormValues;
 
     const subeventoBodyToDb:SubeventoBodyToDb = {
@@ -122,15 +122,24 @@ export default function Subeventos() {
       initDate: `${initDate} ${initHour}`,
       endDate: `${initDate} ${endHour}`,
       flyer,
-      platforms: [
-        { id:platformId, link:platformLink }
-      ],
+      platforms,
       speakers,
       eventId,
       hasRegistration
     }
     if (isEditMode) editSubevento({ ...subeventoBodyToDb, id }); 
     else registerSubevento(subeventoBodyToDb); 
+  }
+
+  function addPlatform () {
+    const id = formValues.platformId;
+    const link = formValues.platformLink;
+    setFormValues({ 
+      ...formValues, 
+      platformId:'1',
+      platformLink:'',
+      platforms: [ ...formValues.platforms, { id, link }]
+    });
   }
 
   function cleanForm (isEditMode:boolean) {
@@ -178,6 +187,8 @@ export default function Subeventos() {
             onChange={handleFormValues}
             name='description'
             disabled={isEditingSubevento || isRegisteringSubevento}
+            rows={4}
+            multiline
           />
 
           <TextField
@@ -226,22 +237,11 @@ export default function Subeventos() {
             disabled={isEditingSubevento || isRegisteringSubevento}
           />
 
-          <TextField
-            label='Link de plataforma'
-            type='text'
-            autoComplete='off'
-            value={subeventoFormValues.platformLink}
-            onChange={handleFormValues}
-            name='platformLink'
-            disabled={isEditingSubevento || isRegisteringSubevento}
-          />
-          
-          <CustomSelect
-            options={platformOptions}
-            label='Plataforma'
-            inputName='platformId'
-            value={subeventoFormValues.platformId}
-            handleSelect={handleSelect}
+          <CustomImageSelector 
+            label='Flyer de subevento' 
+            inputName='flyer' 
+            handleImageSelector={handleImageSelector}
+            value={subeventoFormValues.flyer}
             disabled={isEditingSubevento || isRegisteringSubevento}
           />
 
@@ -252,14 +252,24 @@ export default function Subeventos() {
             value={subeventoFormValues.flyer}
             disabled={isEditingSubevento || isRegisteringSubevento}
           />
+
           <ExpositoresSelector 
             addExpositor={addExpositor} 
             speakers={subeventoFormValues.speakers}
           />
+
           <EventoSelector 
             setEvent={setEvent} 
             eventId={subeventoFormValues.eventId}
           />
+
+          <AddPlatformSelector
+            handleFormValues={handleFormValues}
+            handleSelect={handleSelect}
+            value={subeventoFormValues.type}
+            addPlatform={addPlatform}
+          />
+
         </PaperFormContainer>
       </Grid>
       <SubeventosList 
@@ -288,6 +298,26 @@ function EventoSelector ({ setEvent, eventId }:any) {
   )
 }
 
+function AddPlatformSelector ({ handleFormValues, handleSelect, value, addPlatform }:any) {
+  const [isOpen, setIsOpen] = useState(false);
+  return (
+    <>
+      <Stack flexDirection='row' alignItems='center' justifyContent='space-between'>
+        <Typography>Links de la plataforma</Typography>
+        <Button variant='contained' onClick={() => setIsOpen(true)}>Seleccionar</Button>
+      </Stack>
+      <PlatformLinksDialog
+        isOpen={isOpen} 
+        setIsOpen={setIsOpen} 
+        handleFormValues={handleFormValues}
+        handleSelect={handleSelect}
+        value={value}
+        addPlatform={addPlatform}
+      />
+    </>
+  )
+}
+
 function EventoDialog ({ isOpen, setIsOpen, setEvent, eventId }:any) {
   const { register } = useSelectors();
   const { eventos } = register;
@@ -309,6 +339,41 @@ function EventoDialog ({ isOpen, setIsOpen, setEvent, eventId }:any) {
             ))}
           </List>
         </DialogContent>
+    </Dialog>
+  )
+}
+
+function PlatformLinksDialog ({ isOpen, setIsOpen, handleFormValues, handleSelect, value, addPlatform }:any) {
+  return (
+    <Dialog
+      fullWidth={true}
+      open={isOpen}
+      onClose={() => setIsOpen(false)}
+    >
+      <DialogTitle>Links de la plataforma</DialogTitle>
+      <DialogContent>
+        <Stack sx={{ rowGap:2, mt:1 }}>
+          <CustomSelect
+            options={platformOptions}
+            label='Plataforma a la que pertence'
+            inputName='type'
+            handleSelect={handleSelect}
+            value={value}
+          />
+          <TextField
+            label='Link de plataforma'
+            type='text'
+            autoComplete='off'
+            onChange={handleFormValues}
+            name='platformLink'
+            sx={{ width:'100%' }}
+          />
+          <Button 
+            variant='contained'
+            onClick={() => { addPlatform(); setIsOpen(false) }}
+          >Agregar plataforma</Button>
+        </Stack>
+      </DialogContent>
     </Dialog>
   )
 }
@@ -397,7 +462,8 @@ function SubeventosList ({ setFormValues, isLoadingAction }:any) {
       name,
       speakers,
       type,
-      hasRegistration
+      hasRegistration,
+      platforms
     }
 
     setFormValues(formValue);
@@ -427,6 +493,7 @@ function SubeventosList ({ setFormValues, isLoadingAction }:any) {
                     image={flyer}
                   />
                   <CardContent sx={{ backgroundColor:grey[100] }}>
+
                     <Typography variant='subtitle1' color="text.secondary" sx={{ fontSize: 14 }}>
                       Tipo de evento:
                       {type === '1' ? ' Taller' : ''}
@@ -434,6 +501,7 @@ function SubeventosList ({ setFormValues, isLoadingAction }:any) {
                       {type === '3' ? ' Conferencia' : ''}
                       {type === '4' ? ' Práctica' : ''}
                     </Typography>
+
                     <Typography 
                       variant='subtitle1'
                       color="text.secondary" 
@@ -515,8 +583,8 @@ function PonentesList ({ speakers }:PonentesListProps) {
 
   return (
     <List>
-      {speakersWithData.map(({ firstName, lastName, profilePhoto }) => (
-        <ListItem>
+      {speakersWithData.map(({ firstName, lastName, profilePhoto }, key) => (
+        <ListItem key={key}>
           <ListItemAvatar>
             <Avatar src={profilePhoto}/>
           </ListItemAvatar>

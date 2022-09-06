@@ -13,6 +13,7 @@ export type SubeventoBody = {
   platformId:string;
   eventId:string;
   speakers:string[];
+  platforms:{ id:string, link:string } [];
   hasRegistration:boolean;
 }
 

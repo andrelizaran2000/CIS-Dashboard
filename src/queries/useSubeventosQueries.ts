@@ -72,7 +72,7 @@ export default function useSubeventosQueries() {
           hasRegistration
         }
 
-        const newEventos = [ ...subeventos, cleanSubevent];
+        const newEventos = [ ...subeventos, cleanSubevent ];
         setSubeventos(newEventos);
         showSnackMessage('Nuevo subevento registrado');
 				afterSubmit(false);
