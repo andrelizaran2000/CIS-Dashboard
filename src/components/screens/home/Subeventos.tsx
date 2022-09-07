@@ -61,12 +61,12 @@ const initialStateBlank:SubeventoBodyWithId = {
   endHour:'09:30',
   endDate:'',
   flyer:'',
-  type:'1',
-  eventId:'1',
-  platformId:'1',
+  eventId:'',
   platformLink:'',
   platforms: [],
   speakers:[],
+  platformId:'1',
+  type:'1',
   hasRegistration:true
 }
 
