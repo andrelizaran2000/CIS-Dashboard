@@ -47,6 +47,7 @@ import { ExpositorBodyWithId } from '../../../types/expositor';
 import { SubeventoBodyWithId, SubeventoBodyToDb, SubEventBodyFromDBWithId } from '../../../types/subeventos';
 
 // Icons
+import CloseIcon from '@mui/icons-material/Close';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ModeEditIcon from '@mui/icons-material/ModeEdit';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
@@ -145,6 +146,11 @@ export default function Subeventos() {
   function cleanForm (isEditMode:boolean) {
     setFormValues(initialStateBlank);
     isEditMode && toggleEditMode();
+  }
+
+  function deletePlatform (id:number) {
+    const filteredPlatforms = subeventoFormValues.platforms.filter((_, key) => key !== id);
+    setFormValues({ ...subeventoFormValues, platforms:filteredPlatforms })
   }
 
   function addExpositor (idSelected:string) {
@@ -268,6 +274,8 @@ export default function Subeventos() {
             handleSelect={handleSelect}
             value={subeventoFormValues.type}
             addPlatform={addPlatform}
+            platformList={subeventoFormValues.platforms}
+            deletePlatform={deletePlatform}
           />
 
         </PaperFormContainer>
@@ -298,13 +306,19 @@ function EventoSelector ({ setEvent, eventId }:any) {
   )
 }
 
-function AddPlatformSelector ({ handleFormValues, handleSelect, value, addPlatform }:any) {
+function AddPlatformSelector ({ handleFormValues, handleSelect, value, addPlatform, platformList, deletePlatform }:any) {
+
   const [isOpen, setIsOpen] = useState(false);
+  const [isOpenList, setIsOpenList] = useState(false);
+
   return (
     <>
       <Stack flexDirection='row' alignItems='center' justifyContent='space-between'>
         <Typography>Links de la plataforma</Typography>
-        <Button variant='contained' onClick={() => setIsOpen(true)}>Seleccionar</Button>
+        <Stack columnGap={2} flexDirection='row'>
+          <Button variant='contained' onClick={() => setIsOpenList(true)}>Ver lista</Button>
+          <Button variant='contained' onClick={() => setIsOpen(true)}>Agregar</Button>
+        </Stack>
       </Stack>
       <PlatformLinksDialog
         isOpen={isOpen} 
@@ -313,6 +327,12 @@ function AddPlatformSelector ({ handleFormValues, handleSelect, value, addPlatfo
         handleSelect={handleSelect}
         value={value}
         addPlatform={addPlatform}
+      />
+      <PlatformListDialog
+        isOpenList={isOpenList}
+        setIsOpenList={setIsOpenList}
+        platformList={platformList}
+        deletePlatform={deletePlatform}
       />
     </>
   )
@@ -372,6 +392,31 @@ function PlatformLinksDialog ({ isOpen, setIsOpen, handleFormValues, handleSelec
             variant='contained'
             onClick={() => { addPlatform(); setIsOpen(false) }}
           >Agregar plataforma</Button>
+        </Stack>
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+function PlatformListDialog ({ isOpenList, setIsOpenList, platformList, deletePlatform }:any) {
+  return (
+    <Dialog
+      fullWidth={true}
+      open={isOpenList}
+      onClose={() => setIsOpenList(false)}
+    >
+      <DialogTitle>Lista de la plataforma</DialogTitle>
+      <DialogContent>
+        <Stack>
+          {platformList.map(({ link }:any, key:any) => (
+            <Stack sx={{ flexDirection:'row', justifyContent:'space-between', alignItems:'center' }} key={key}>
+              <Typography>{link}</Typography>
+              <IconButton onClick={() => deletePlatform(key)}>
+                <CloseIcon/>
+              </IconButton>
+            </Stack>
+          ))}
+          {platformList.length === 0 && <Alert severity="info">No hay plataformas enlistadas</Alert>}
         </Stack>
       </DialogContent>
     </Dialog>
@@ -574,7 +619,7 @@ type PonentesListProps = {
 function PonentesList ({ speakers }:PonentesListProps) {
 
   const { register } = useSelectors();
-  const [speakersWithData, setSpeakersWithData] = useState<ExpositorBodyWithId[]>([]);
+  const [ speakersWithData, setSpeakersWithData ] = useState<ExpositorBodyWithId[]>([]);
 
   useEffect(() => {
     const newExpositores = register.expositores.filter(({ id }) => speakers.includes(String(id)));
