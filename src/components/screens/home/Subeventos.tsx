@@ -251,14 +251,6 @@ export default function Subeventos() {
             disabled={isEditingSubevento || isRegisteringSubevento}
           />
 
-          <CustomImageSelector 
-            label='Flyer de subevento' 
-            inputName='flyer' 
-            handleImageSelector={handleImageSelector}
-            value={subeventoFormValues.flyer}
-            disabled={isEditingSubevento || isRegisteringSubevento}
-          />
-
           <ExpositoresSelector 
             addExpositor={addExpositor} 
             speakers={subeventoFormValues.speakers}

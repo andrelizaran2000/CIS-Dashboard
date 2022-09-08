@@ -39,17 +39,6 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import ModeEditIcon from '@mui/icons-material/ModeEdit';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 
-const initialState:EventoBodyWithId = {
-  id:'0',
-  title:'JS & TS',
-  description:'Sit eu veniam occaecat enim culpa voluptate incididunt ea deserunt incididunt labore aliqua occaecat.',
-  initDate:'',
-  endDate:'',
-  flyer1:'https://firebasestorage.googleapis.com/v0/b/cis-frontend-81086.appspot.com/o/1_9XMpTyccrky0eW5Wz6DoWQ.png?alt=media&token=bd82a2bd-4291-40c2-8aca-e614bc27794f',
-  flyer2:'https://firebasestorage.googleapis.com/v0/b/cis-frontend-81086.appspot.com/o/1_9XMpTyccrky0eW5Wz6DoWQ.png?alt=media&token=bd82a2bd-4291-40c2-8aca-e614bc27794f',
-  hasRegistration:true
-}
-
 const initialStateBlank:EventoBodyWithId = {
   id:'0',
   title:'',
@@ -83,8 +72,8 @@ export default function Eventos() {
   const { mutate:editEvento, isLoading:isEditingEvento } = editEventoMutation(cleanForm);
 
   function validateForm () {
-    const { description, endDate, flyer1, initDate, title } = eventoFormValues;
-    if (description && endDate && flyer1 && initDate && title) return true;
+    const { description, endDate, flyer1, flyer2, initDate, title } = eventoFormValues;
+    if (description && endDate && flyer1 && flyer2 && initDate && title) return true;
     showSnackMessage('No has completado toda la información del formulario');
     return false;
   }
@@ -130,6 +119,8 @@ export default function Eventos() {
             onChange={handleFormValues}
             name='description'
             disabled={isRegisteringEvento || isEditingEvento}
+            multiline
+            rows={4}
           />
           <Grid container spacing={2}>
             <Grid item xs={12} md={6}>
@@ -158,10 +149,17 @@ export default function Eventos() {
             </Grid>
           </Grid>
           <CustomImageSelector 
-            label='Flyer de evento' 
+            label='Flyer 1 de evento' 
             inputName='flyer1' 
             handleImageSelector={handleImageSelector}
             value={eventoFormValues.flyer1}
+            disabled={isRegisteringEvento || isEditingEvento}
+          />
+          <CustomImageSelector 
+            label='Flyer 2 de evento' 
+            inputName='flyer2' 
+            handleImageSelector={handleImageSelector}
+            value={eventoFormValues.flyer2}
             disabled={isRegisteringEvento || isEditingEvento}
           />
           <CustomSwitch

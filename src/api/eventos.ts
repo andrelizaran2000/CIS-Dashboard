@@ -9,11 +9,7 @@ export function getEventosApi () {
 }
 
 export function registerEventoApi (event:EventoBody) {
-  const newEvent = {
-    ...event, 
-    flyer2:event.flyer1
-  }
-  return axiosInstanceWithAuth.post<{ id:string }>('/api-dashboard/events.php', newEvent);
+  return axiosInstanceWithAuth.post<{ id:string }>('/api-dashboard/events.php', event);
 } 
 
 export function editEventoApi (event:EventoBodyWithId) {
